@@ -1,0 +1,18 @@
+{
+  "name": "agentic-mev-forensics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.2",
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "turbo": "^2.9.6",
+    "typescript": "^6.0.3"
+  }
+}
