@@ -61,7 +61,9 @@ get_trade → simulate_at_state(N-1)
 
 ## Architecture
 
-```
+![repository structure](./mev_forensics_repo_structure.svg)
+
+<!-- ```
            ┌─────────────────────────────┐
            │        apps/web             │
            │  Next.js · chat interface   │
@@ -101,7 +103,7 @@ get_trade → simulate_at_state(N-1)
                     │  Uni v2/v3 PnL math    │
                     │  @uniswap/v3-sdk       │
                     └────────────────────────┘
-```
+``` -->
 
 **Webhook automation (KeeperHub):** Running a Tenderly simulation fires a webhook → KeeperHub guarantees delivery to `POST /webhook/tenderly` → investigation starts automatically. No manual tx hash pasting required.
 
