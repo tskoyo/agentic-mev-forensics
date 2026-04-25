@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ────────────────────────────────────────────────────────────────
+   MEV Forensics — design tokens
+   Light is default; [data-theme="dark"] (or .dark on <html>) swaps.
+   ──────────────────────────────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --canvas:    #F5F3EF;
+  --surface:   #FFFFFF;
+  --sunken:    #F0EDE8;
+
+  /* Borders */
+  --border-s:  #E5E1D9;
+  --border-d:  #D4CFC6;
+  --border-st: #9B9490;
+
+  /* Text */
+  --text-p:    #1C1917;
+  --text-s:    #6B6460;
+  --text-t:    #9B948F;
+
+  /* Verdict / role palettes */
+  --green:     #3D7A5F;
+  --green-bg:  #EEF7F2;
+  --green-bd:  #A7D4BC;
+
+  --red:       #B45C50;
+  --red-bg:    #FDF1EF;
+  --red-bd:    #EBBDB7;
+
+  --amber:     #B07D2A;
+  --amber-bg:  #FDF8EE;
+  --amber-bd:  #E8D190;
+
+  --slate:     #5C6470;
+  --slate-bg:  #F3F4F6;
+  --slate-bd:  #D1D5DB;
+}
+
+[data-theme="dark"] {
+  --canvas:    #141210;
+  --surface:   #1E1B18;
+  --sunken:    #111009;
+
+  --border-s:  #2D2A26;
+  --border-d:  #3D3A35;
+  --border-st: #6B6460;
+
+  --text-p:    #F0EDE8;
+  --text-s:    #9B948F;
+  --text-t:    #6B6460;
+
+  --green:     #5BA882;
+  --green-bg:  #0D231A;
+  --green-bd:  #2A5C42;
+
+  --red:       #E07B6E;
+  --red-bg:    #1A0E0C;
+  --red-bd:    #5C2E28;
+
+  --amber:     #D4A040;
+  --amber-bg:  #1A1408;
+  --amber-bd:  #5C4A1A;
+
+  --slate:     #8C95A0;
+  --slate-bg:  #1E2028;
+  --slate-bd:  #3D4654;
+}
+
+* { box-sizing: border-box; }
+html, body, #__next { height: 100%; }
+body {
+  background: var(--canvas);
+  color: var(--text-p);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular numerals everywhere we render mono */
+.font-mono { font-variant-numeric: tabular-nums; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-d); border-radius: 3px; }
+
+input:focus { outline: 2px solid var(--border-st); outline-offset: 1px; }
