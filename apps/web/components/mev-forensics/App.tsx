@@ -11,13 +11,23 @@ import { WebhookToast } from "./WebhookToast";
 export function App() {
   const [selectedId, setSelectedId] = useState<string>("tx1");
   const [showToast, setShowToast]   = useState(false);
-  const [dark, setDark]             = useState(false);
+  // Sync initial state from DOM — the no-flash script in layout.tsx already
+  // applied the correct theme before hydration.
+  const [dark, setDark] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return document.documentElement.dataset.theme === "dark";
+  });
 
-  // Apply theme to <html data-theme> so CSS vars in globals.css swap.
+  // Persist theme to localStorage and update DOM on toggle.
   useEffect(() => {
     const root = document.documentElement;
-    if (dark) root.setAttribute("data-theme", "dark");
-    else root.removeAttribute("data-theme");
+    if (dark) {
+      root.dataset.theme = "dark";
+      localStorage.setItem("theme", "dark");
+    } else {
+      delete root.dataset.theme;
+      localStorage.setItem("theme", "light");
+    }
   }, [dark]);
 
   const selectedTrade = TRADES.find((t) => t.id === selectedId);

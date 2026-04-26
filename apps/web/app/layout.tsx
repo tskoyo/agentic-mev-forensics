@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "MEV Forensics — Observability",
+  title: "MEV Forensics",
   description: "Autonomous investigator for underperforming MEV trades.",
 };
 
@@ -12,16 +27,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
+        {/* Apply saved theme before first paint to prevent flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}})()`
+          }}
         />
       </head>
-      <body className="font-sans bg-canvas text-text-p">{children}</body>
+      <body
+        className="font-sans bg-canvas text-text-p"
+        style={{ fontFamily: "var(--font-inter, Inter, ui-sans-serif, system-ui, sans-serif)" }}
+      >
+        {children}
+      </body>
     </html>
   );
 }

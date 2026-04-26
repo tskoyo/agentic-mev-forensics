@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+        sans: ["var(--font-inter)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains)", "JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
         // Surfaces
@@ -39,6 +39,19 @@ const config: Config = {
         slate:    "var(--slate)",
         "slate-bg": "var(--slate-bg)",
         "slate-bd": "var(--slate-bd)",
+        // PnL
+        "pnl-loss":    "var(--pnl-loss)",
+        "pnl-gain":    "var(--pnl-gain)",
+        "pnl-neutral": "var(--pnl-neutral)",
+        // Role chips
+        "role-arb-bg":  "var(--role-arbitrageur-bg)",
+        "role-arb-txt": "var(--role-arbitrageur-text)",
+        "role-pool-bg":  "var(--role-pool-bg)",
+        "role-pool-txt": "var(--role-pool-text)",
+        "role-srch-bg":  "var(--role-searcher-bg)",
+        "role-srch-txt": "var(--role-searcher-text)",
+        "role-bldr-bg":  "var(--role-builder-bg)",
+        "role-bldr-txt": "var(--role-builder-text)",
       },
       keyframes: {
         pulse: {

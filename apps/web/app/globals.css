@@ -22,7 +22,7 @@
   --text-s:    #6B6460;
   --text-t:    #9B948F;
 
-  /* Verdict / role palettes */
+  /* Verdict palettes */
   --green:     #3D7A5F;
   --green-bg:  #EEF7F2;
   --green-bd:  #A7D4BC;
@@ -38,6 +38,24 @@
   --slate:     #5C6470;
   --slate-bg:  #F3F4F6;
   --slate-bd:  #D1D5DB;
+
+  /* PnL */
+  --pnl-loss:    #B45C50;
+  --pnl-gain:    #3D7A5F;
+  --pnl-neutral: #6B6460;
+
+  /* Role chips — static in light, overridden in dark */
+  --role-arbitrageur-bg:   #EEF0FA; --role-arbitrageur-text: #3B4A9E;
+  --role-victim-bg:        #FAF0EE; --role-victim-text:      #9E3B30;
+  --role-liquidator-bg:    #F5EEFC; --role-liquidator-text:  #7A3B9E;
+  --role-builder-bg:       #EFF0F2; --role-builder-text:     #3D4654;
+  --role-pool-bg:          #EEF7F7; --role-pool-text:        #2A6A6A;
+  --role-router-bg:        #F2F2F2; --role-router-text:      #4A4A4A;
+  --role-searcher-bg:      #FDF8EE; --role-searcher-text:    #7A5A1A;
+
+  /* Layout */
+  --sidebar-width:  280px;
+  --evidence-width: 340px;
 }
 
 [data-theme="dark"] {
@@ -68,6 +86,55 @@
   --slate:     #8C95A0;
   --slate-bg:  #1E2028;
   --slate-bd:  #3D4654;
+
+  --pnl-loss:    #E07B6E;
+  --pnl-gain:    #5BA882;
+  --pnl-neutral: #9B948F;
+
+  --role-arbitrageur-bg:   #1A1E3A; --role-arbitrageur-text: #8090D4;
+  --role-victim-bg:        #3A1A18; --role-victim-text:      #D47870;
+  --role-liquidator-bg:    #2A1A3A; --role-liquidator-text:  #B478D4;
+  --role-builder-bg:       #1E2028; --role-builder-text:     #8C95A0;
+  --role-pool-bg:          #0D2A2A; --role-pool-text:        #60B0B0;
+  --role-router-bg:        #1E1E1E; --role-router-text:      #A0A0A0;
+  --role-searcher-bg:      #261E0A; --role-searcher-text:    #C8A050;
+}
+
+/* System dark-mode preference (first load, no localStorage override) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas:    #141210;
+    --surface:   #1E1B18;
+    --sunken:    #111009;
+    --border-s:  #2D2A26;
+    --border-d:  #3D3A35;
+    --border-st: #6B6460;
+    --text-p:    #F0EDE8;
+    --text-s:    #9B948F;
+    --text-t:    #6B6460;
+    --green:     #5BA882;
+    --green-bg:  #0D231A;
+    --green-bd:  #2A5C42;
+    --red:       #E07B6E;
+    --red-bg:    #1A0E0C;
+    --red-bd:    #5C2E28;
+    --amber:     #D4A040;
+    --amber-bg:  #1A1408;
+    --amber-bd:  #5C4A1A;
+    --slate:     #8C95A0;
+    --slate-bg:  #1E2028;
+    --slate-bd:  #3D4654;
+    --pnl-loss:    #E07B6E;
+    --pnl-gain:    #5BA882;
+    --pnl-neutral: #9B948F;
+    --role-arbitrageur-bg:   #1A1E3A; --role-arbitrageur-text: #8090D4;
+    --role-victim-bg:        #3A1A18; --role-victim-text:      #D47870;
+    --role-liquidator-bg:    #2A1A3A; --role-liquidator-text:  #B478D4;
+    --role-builder-bg:       #1E2028; --role-builder-text:     #8C95A0;
+    --role-pool-bg:          #0D2A2A; --role-pool-text:        #60B0B0;
+    --role-router-bg:        #1E1E1E; --role-router-text:      #A0A0A0;
+    --role-searcher-bg:      #261E0A; --role-searcher-text:    #C8A050;
+  }
 }
 
 * { box-sizing: border-box; }

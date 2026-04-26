@@ -17,6 +17,8 @@ export type ToolStatus = "done" | "running" | "pending" | "error";
 
 export type TagColor = "indigo" | "green" | "slate" | "teal" | "red";
 
+export type Source = "manual" | "webhook";
+
 export interface Trade {
   id: string;
   hash: string;
@@ -26,6 +28,7 @@ export interface Trade {
   pnlDelta: string;
   block: string;
   ago: string;
+  source: Source;
 }
 
 export interface ToolCall {
@@ -74,6 +77,8 @@ export interface RuledOut {
 }
 
 export interface Investigation {
+  completed_at: string | null;
+  source: Source;
   question: string | null;
   toolCalls: ToolCall[];
   verdict: Verdict;

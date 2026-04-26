@@ -13,6 +13,7 @@ export const TRADES: Trade[] = [
     pnlDelta: "-$25.40",
     block: "19,841,204",
     ago: "3 min ago",
+    source: "manual",
   },
   {
     id: "tx2",
@@ -23,6 +24,7 @@ export const TRADES: Trade[] = [
     pnlDelta: "-$8.20",
     block: "19,841,190",
     ago: "11 min ago",
+    source: "webhook",
   },
   {
     id: "tx3",
@@ -33,11 +35,14 @@ export const TRADES: Trade[] = [
     pnlDelta: "-$1.10",
     block: "19,841,177",
     ago: "22 min ago",
+    source: "manual",
   },
 ];
 
 export const INVESTIGATIONS: Record<string, Investigation> = {
   tx1: {
+    completed_at: "2026-04-26T11:14:00Z",
+    source: "manual",
     question: "Why did this earn $49.40 when I expected $74.80?",
     toolCalls: [
       { id: "tc1", name: "get_trade",         input: "0x4f72…c81e",    status: "done", duration: "1.2s" },
@@ -85,6 +90,8 @@ export const INVESTIGATIONS: Record<string, Investigation> = {
   },
 
   tx2: {
+    completed_at: "2026-04-26T11:03:00Z",
+    source: "webhook",
     question: "Why did this earn less than expected?",
     toolCalls: [
       { id: "tc1", name: "get_trade",         input: "0x9d1c…e08b",        status: "done", duration: "1.1s" },
@@ -140,6 +147,8 @@ export const INVESTIGATIONS: Record<string, Investigation> = {
   },
 
   tx3: {
+    completed_at: null,
+    source: "manual",
     question: null,
     toolCalls: [],
     verdict: "not checked",
