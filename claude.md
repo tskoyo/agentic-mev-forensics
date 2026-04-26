@@ -33,7 +33,9 @@ Both paths feed into the exact same investigation pipeline.
 | Tenderly | REST via plain `fetch` | No official SDK needed — just typed fetch wrappers |
 | Claude model | `claude-sonnet-4-6` | Best tool-use reliability |
 | Server | Hono | Native SSE streaming — critical for live tool-call timeline |
-<!-- | Frontend | Next.js + TailwindCSS | — | -->
+| Frontend | Next.js 14 App Router + TailwindCSS | Three-column dashboard — Trade list / Chat+Timeline / Evidence panel |
+| Icons | Lucide Icons v0.475+ | Stroke-only, 1.5px weight, 16×20px — no emoji, no custom SVGs |
+| Design tokens | `mev-forensics-design-system/` | Forensic Warm palette, Inter + JetBrains Mono, CSS vars in `colors_and_type.css` |
 | Streaming | SSE (Server-Sent Events) | Live tool-call timeline from Hono → Next.js |
 | Storage | JSON files on disk | No database overhead for a 12-day hackathon |
 | Monorepo | `pnpm workspaces` | — |
@@ -238,23 +240,49 @@ GET  /wallets                 → list registered wallet addresses
 
 ---
 
-<!-- ## Frontend layout (3-column dashboard)
+## Frontend layout (3-column dashboard)
 
-**Left — Trade list**
-- tx hash (truncated), plain-language badge, block number, PnL gap in USD
-- Suggested follow-up questions (hardcoded per demo trade)
-- **Never show taxonomy codes**
+**Design source of truth:** `mev-forensics-design-system/project/README.md` + `ui_kits/app/index.html` — Forensic Warm palette, design tokens in `colors_and_type.css`.
 
-**Center — Chat + tool-call timeline**
-- Tool-call timeline streams above agent answer bubble (pulsing dot → tick)
-- Full conversation history sent on every follow-up
-- Agent reuses cached tool results — does NOT re-fetch
+**Left (~280px) — Trade list sidebar**
+- One row per trade: truncated tx hash, verdict badge, PnL delta (USD), block number
+- Verdict badge colors: `frontrun`=terracotta `#B45C50`, `unknown`=amber `#B07D2A`, `normal`=slate `#6B7280`, `not checked`=light gray, `auto`=sage `#3D7A5F`
+- Selected row: 3px left border in verdict color; active row background `--surface-hover`
+- Filter dropdown: All / Frontrun / Unknown / Normal — sort by most recent block first
+- `auto` badge on webhook-triggered investigations
+- Empty state: "Paste a tx hash or wait for a webhook"
 
-**Right — Evidence panel**
-- Verdict card (green / amber / gray)
-- PnL tiles: Expected / Realized / Gap
-- Citation cards — one per tool result, key data only, no raw JSON
-- Clears only when a new trade is selected -->
+**Center (flex) — Investigation / Chat**
+- Tool-call timeline streams live above agent answer (queued → pulsing dot → check / error)
+- Tool budget meter in header: `N/8` — neutral 0–6, amber 7, red 8 with "hard stop reached"
+- Agent narrative renders only after all tool calls complete — never mid-stream
+- Full conversation history sent on every follow-up; agent reuses cached results, does NOT re-fetch
+- Suggested follow-up chips appear below completed investigation (templates per verdict type)
+- Chat input at bottom with tx hash paste support
+- Narrative: clickable citation chips `[tool_call_3]` that scroll to and highlight the source tool call
+
+**Right (~340px) — Evidence panel**
+- Verdict card: green (frontrun confirmed) / amber (unknown) / gray (normal) — tinted background at ~8% opacity
+- PnL tiles: Expected | Realized | Gap — USD-annotated, signed (`+$25.40`, `-$25.40`)
+- Gap card shows both threshold indicators (Δ>5% and Δ>$10) as check/cross icons
+- Unknown verdict: expandable audit trail showing hypotheses investigated + what ruled each out
+- Citation cards: one per tool result — key fields only, no raw JSON
+- Actor rows with role badges (arbitrageur / victim / liquidator / builder / pool / receiver / flash_loan_provider)
+- Toggle: Actors view (net PnL per actor) ↔ Timeline view (chronological call order)
+- Hover on any address: tooltip with full address + Etherscan external-link icon
+- Clears only when a new trade is selected
+
+**Mobile breakpoint:** Columns collapse into tabs (Trades / Investigation / Evidence) — never stacked.
+
+**Dark mode:** Token-based, toggle in header. Contrast-checked — frontrun and unknown cards use adjusted backgrounds to maintain WCAG AA readability.
+
+**Typography rules (non-negotiable):**
+- UI labels: Title Case for section headers ("Tool Calls", "Evidence Panel", "PnL Breakdown")
+- Verdict badges: lowercase (`frontrun`, `unknown`, `normal`, `not checked`, `auto`)
+- Addresses/hashes: always truncated `0xabcd…wxyz` — never raw, never without a label
+- Token symbols: ALLCAPS (`WETH`, `USDC`, `ETH`)
+- Numbers: always USD-annotated, signed for PnL — monospace (`font-variant-numeric: tabular-nums`)
+- Zero emoji anywhere in UI or copy
 
 ---
 
@@ -341,7 +369,7 @@ User can also browse existing reports in the trade list and ask follow-up questi
 
 1. **Never** show taxonomy codes (A2, B1, B9) in the UI
 2. **Never** roll your own V3 tick math — use `@uniswap/v3-sdk`
-3. **Never** touch the frontend before Day 6
+3. **Frontend runs in parallel** — `apps/web` is owned by the frontend developer (Spyro); scaffold and build components any time, but wire live SSE data only after Day 6 when the Hono stream is functional
 4. **Never** add tools beyond the 5 defined
 5. **Never** read about B3 sandwiching until MVP is done
 6. **Never** claim Tenderly is a hackathon sponsor (they're not)

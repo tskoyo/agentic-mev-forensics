@@ -75,4 +75,4 @@ If a specific issue number was requested, display the full body and any comments
 After listing issues, cross-reference with the 12-day plan from CLAUDE.md and note:
 - Which issues are on the critical path for today's day number
 - Which Foundation issues must be completed before Agent Core work begins
-- Which Frontend issues must NOT be started before Day 6
+- Which Frontend issues can be built independently (components, layout, static state) vs. which need the Hono SSE stream to be wired (Day 6+)
