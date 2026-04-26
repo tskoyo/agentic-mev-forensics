@@ -1,0 +1,14 @@
+{
+    "name": "@mev/rpc",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./index.ts",
+    "types": "./index.ts",
+    "dependencies": {
+        "@mev/shared": "workspace:*",
+        "viem": "^2.21.0"
+    },
+    "devDependencies": {
+        "@types/node": "^25.6.0"
+    }
+}
