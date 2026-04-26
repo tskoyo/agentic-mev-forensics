@@ -4,8 +4,6 @@
 // cause (why). MVP supports A2/A9 outcomes and B1/B9 causes.
 // Other codes are reserved — adding them is a future scope item,
 // not a free-form extension point.
-//
-// UI rule: never expose these codes directly to the user.
 
 export type Outcome = "A2" | "A9";
 export type RootCause = "B1" | "B9";
