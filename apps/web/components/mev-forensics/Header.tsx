@@ -5,10 +5,9 @@ import { LogoIcon, MoonIcon, SunIcon } from "./primitives/icons";
 interface Props {
   dark: boolean;
   onToggleDark: () => void;
-  onSimulateWebhook: () => void;
 }
 
-export function Header({ dark, onToggleDark, onSimulateWebhook }: Props) {
+export function Header({ dark, onToggleDark }: Props) {
   return (
     <header className="h-11 shrink-0 bg-surface border-b border-border-s flex items-center px-5 gap-3">
       {/* Logo */}
@@ -21,21 +20,7 @@ export function Header({ dark, onToggleDark, onSimulateWebhook }: Props) {
         </span>
       </div>
 
-      <div className="w-px h-4 bg-border-s" />
-
-      <span className="text-xs text-text-t">Ethereum mainnet</span>
-      <span className="text-border-d text-xs">·</span>
-      <span className="text-xs text-text-t">Uniswap v2 / v3</span>
-
       <div className="flex-1" />
-
-      <button
-        type="button"
-        onClick={onSimulateWebhook}
-        className="px-2.5 py-1 bg-transparent border border-border-d rounded text-[11px] text-text-s cursor-pointer mr-1.5 hover:bg-sunken transition-colors"
-      >
-        Simulate webhook
-      </button>
 
       <button
         type="button"
