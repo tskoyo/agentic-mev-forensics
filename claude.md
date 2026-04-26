@@ -13,7 +13,7 @@ An autonomous forensics agent for MEV searchers. Given a trade that underperform
 Investigations can be triggered two ways:
 - **Manual:** user pastes a tx hash into the chat UI and asks a question
 
-<!-- Stretch goal: If we have time -->
+Stretch goal: If we have time
 - **Automatic:** a wallet monitor detects a new tx from a registered wallet → fires a webhook → KeeperHub delivers it reliably to the Hono server → investigation runs with no human input → investigation is saved in user's dashboard and he can access it any time he wants to do it
 
 Both paths feed into the exact same investigation pipeline.
