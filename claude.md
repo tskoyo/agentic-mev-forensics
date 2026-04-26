@@ -33,7 +33,7 @@ Both paths feed into the exact same investigation pipeline.
 | Tenderly | REST via plain `fetch` | No official SDK needed — just typed fetch wrappers |
 | Claude model | `claude-sonnet-4-6` | Best tool-use reliability |
 | Server | Hono | Native SSE streaming — critical for live tool-call timeline |
-| Frontend | Next.js 14 App Router + TailwindCSS | Three-column dashboard — Trade list / Chat+Timeline / Evidence panel |
+| Frontend | Next.js 14 App Router + TailwindCSS | Two-column dashboard — Trade list / Chat+Timeline |
 | Icons | Lucide Icons v0.475+ | Stroke-only, 1.5px weight, 16×20px — no emoji, no custom SVGs |
 | Design tokens | `mev-forensics-design-system/` | Forensic Warm palette, Inter + JetBrains Mono, CSS vars in `colors_and_type.css` |
 | Streaming | SSE (Server-Sent Events) | Live tool-call timeline from Hono → Next.js |
@@ -240,7 +240,7 @@ GET  /wallets                 → list registered wallet addresses
 
 ---
 
-## Frontend layout (3-column dashboard)
+## Frontend layout (2-column dashboard)
 
 **Design source of truth:** `mev-forensics-design-system/project/README.md` + `ui_kits/app/index.html` — Forensic Warm palette, design tokens in `colors_and_type.css`.
 
@@ -261,18 +261,7 @@ GET  /wallets                 → list registered wallet addresses
 - Chat input at bottom with tx hash paste support
 - Narrative: clickable citation chips `[tool_call_3]` that scroll to and highlight the source tool call
 
-**Right (~340px) — Evidence panel**
-- Verdict card: green (frontrun confirmed) / amber (unknown) / gray (normal) — tinted background at ~8% opacity
-- PnL tiles: Expected | Realized | Gap — USD-annotated, signed (`+$25.40`, `-$25.40`)
-- Gap card shows both threshold indicators (Δ>5% and Δ>$10) as check/cross icons
-- Unknown verdict: expandable audit trail showing hypotheses investigated + what ruled each out
-- Citation cards: one per tool result — key fields only, no raw JSON
-- Actor rows with role badges (arbitrageur / victim / liquidator / builder / pool / receiver / flash_loan_provider)
-- Toggle: Actors view (net PnL per actor) ↔ Timeline view (chronological call order)
-- Hover on any address: tooltip with full address + Etherscan external-link icon
-- Clears only when a new trade is selected
-
-**Mobile breakpoint:** Columns collapse into tabs (Trades / Investigation / Evidence) — never stacked.
+**Mobile breakpoint:** Columns collapse into tabs (Trades / Investigation) — never stacked.
 
 **Dark mode:** Token-based, toggle in header. Contrast-checked — frontrun and unknown cards use adjusted backgrounds to maintain WCAG AA readability.
 
