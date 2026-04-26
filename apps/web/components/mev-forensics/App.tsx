@@ -25,7 +25,7 @@ export function App() {
       root.dataset.theme = "dark";
       localStorage.setItem("theme", "dark");
     } else {
-      delete root.dataset.theme;
+      root.dataset.theme = "light";
       localStorage.setItem("theme", "light");
     }
   }, [dark]);

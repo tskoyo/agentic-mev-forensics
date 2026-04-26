@@ -36,7 +36,7 @@ export default function RootLayout({
         {/* Apply saved theme before first paint to prevent flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}})()`
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=document.documentElement;if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches))d.dataset.theme='dark';else d.dataset.theme='light'}catch(e){}})()`
           }}
         />
       </head>
