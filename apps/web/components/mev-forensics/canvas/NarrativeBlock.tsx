@@ -7,9 +7,10 @@ import { ChevronIcon, MinusInCircleIcon } from "../primitives/icons";
 
 interface Props {
   verdict: Verdict;
-  headline: string;
+  headline: string | null;
   body: string | null;
   ruledOut?: RuledOut[];
+  streaming?: boolean;
 }
 
 /** Splits narrative body and renders [citation] tokens as inline chips. */
@@ -36,7 +37,7 @@ function renderBody(text: string | null): ReactNode {
   });
 }
 
-export function NarrativeBlock({ verdict, headline, body, ruledOut }: Props) {
+export function NarrativeBlock({ verdict, headline, body, ruledOut, streaming }: Props) {
   const vs = VERDICT_STYLES[verdict] ?? VERDICT_STYLES["not checked"];
   const [expanded, setExpanded] = useState(false);
 
@@ -51,11 +52,16 @@ export function NarrativeBlock({ verdict, headline, body, ruledOut }: Props) {
           borderLeft: `3px solid var(--${vs.text.replace("text-", "")})`,
         }}
       >
-        <div className={`text-base font-semibold mb-1.5 ${vs.text}`}>
-          {headline}
-        </div>
+        {headline && (
+          <div className={`text-base font-semibold mb-1.5 ${vs.text}`}>
+            {headline}
+          </div>
+        )}
         <div className="text-[13px] text-text-p leading-relaxed">
           {renderBody(body)}
+          {streaming && (
+            <span className="inline-block w-[2px] h-[14px] bg-text-s align-middle ml-0.5 animate-pulse-slow" />
+          )}
         </div>
       </div>
 
