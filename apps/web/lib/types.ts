@@ -37,6 +37,8 @@ export interface ToolCall {
   input: string;
   status: ToolStatus;
   duration?: string;
+  startedAt?: number;
+  error?: string;
 }
 
 export interface Pnl {
