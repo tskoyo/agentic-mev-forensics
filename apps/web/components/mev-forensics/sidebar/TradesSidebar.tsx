@@ -26,14 +26,22 @@ export function TradesSidebar({ trades, selectedId, onSelect }: Props) {
 
       {/* List */}
       <div className="flex-1 overflow-y-auto">
-        {trades.map((t) => (
-          <TradeRow
-            key={t.id}
-            trade={t}
-            selected={t.id === selectedId}
-            onClick={() => onSelect(t.id)}
-          />
-        ))}
+        {trades.length === 0 ? (
+          <div className="h-full flex items-center justify-center px-6">
+            <p className="text-xs text-text-t text-center leading-relaxed">
+              Paste a tx hash below or wait for a webhook to trigger an investigation.
+            </p>
+          </div>
+        ) : (
+          trades.map((t) => (
+            <TradeRow
+              key={t.id}
+              trade={t}
+              selected={t.id === selectedId}
+              onClick={() => onSelect(t.id)}
+            />
+          ))
+        )}
       </div>
 
       {/* Suggested follow-ups */}
