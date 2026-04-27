@@ -1,6 +1,6 @@
 # MEV Forensics Agent — Claude Code Context
 
-> ETHGlobal OpenAgents · April 24 – May 6, 2026 · 12-day build
+> ETHGlobal OpenAgents · April 24 – May 3, 2026 · 9-day build
 
 This file gives Claude Code full context to assist with this project. Read it before making any change.
 
