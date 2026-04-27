@@ -32,7 +32,7 @@ Both paths feed into the exact same investigation pipeline.
 | RPC node | Alchemy | Ethereum mainnet endpoint |
 | Tenderly | REST via plain `fetch` | No official SDK needed — just typed fetch wrappers |
 | Claude model | `claude-sonnet-4-6` | Best tool-use reliability |
-| Server | Hono | Native SSE streaming — critical for live tool-call timeline |
+| Server | Hono | Native SSE streaminggg — critical for live tool-call timeline |
 | Frontend | Next.js 14 App Router + TailwindCSS | Two-column dashboard — Trade list / Chat+Timeline |
 | Icons | Lucide Icons v0.475+ | Stroke-only, 1.5px weight, 16×20px — no emoji, no custom SVGs |
 | Design tokens | `mev-forensics-design-system/` | Forensic Warm palette, Inter + JetBrains Mono, CSS vars in `colors_and_type.css` |
