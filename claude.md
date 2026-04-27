@@ -35,7 +35,7 @@ Both paths feed into the exact same investigation pipeline.
 | Server | Hono | Native SSE streaminggg — critical for live tool-call timeline |
 | Frontend | Next.js 14 App Router + TailwindCSS | Two-column dashboard — Trade list / Chat+Timeline |
 | Icons | Lucide Icons v0.475+ | Stroke-only, 1.5px weight, 16×20px — no emoji, no custom SVGs |
-| Design tokens | `mev-forensics-design-system/` | Forensic Warm palette, Inter + JetBrains Mono, CSS vars in `colors_and_type.css` |
+| Design tokens | `mev-forensics-design-system/` | fffForensic Warm palette, Inter + JetBrains Mono, CSS vars in `colors_and_type.css` |
 | Streaming | SSE (Server-Sent Events) | Live tool-call timeline from Hono → Next.js |
 | Storage | JSON files on disk | No database overhead for a 12-day hackathon |
 | Monorepo | `pnpm workspaces` | — |
