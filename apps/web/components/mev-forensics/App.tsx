@@ -16,20 +16,13 @@ export function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (dark) {
-      root.dataset.theme = "dark";
-      localStorage.setItem("theme", "dark");
-    } else {
-      root.dataset.theme = "light";
-      localStorage.setItem("theme", "light");
-    }
+    root.dataset.theme = dark ? "dark" : "light";
+    localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  const { investigation: liveInvestigation, isStreaming, start, reset } = useInvestigation();
+  const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
   const selectedTrade = TRADES.find((t) => t.id === selectedId);
-
-  // Use live investigation when streaming; fall back to saved mock data
   const activeInvestigation = liveInvestigation ?? (selectedId ? INVESTIGATIONS[selectedId] ?? null : null);
 
   function handleSelectTrade(id: string) {
@@ -39,7 +32,6 @@ export function App() {
 
   function handleSend(text: string) {
     if (!selectedTrade) return;
-    // Detect tx hash input (0x... ≥ 10 chars) vs follow-up question
     const isTxHash = /^0x[0-9a-fA-F]{6,}/.test(text.trim());
     const txHash = isTxHash ? text.trim() : selectedTrade.fullHash;
     const question = isTxHash ? undefined : text.trim();
@@ -48,10 +40,7 @@ export function App() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-canvas">
-      <Header
-        dark={dark}
-        onToggleDark={() => setDark((d) => !d)}
-      />
+      <Header dark={dark} onToggleDark={() => setDark((d) => !d)} />
 
       <div className="flex-1 flex overflow-hidden">
         <TradesSidebar
@@ -63,7 +52,9 @@ export function App() {
           trade={selectedTrade}
           investigation={activeInvestigation}
           isStreaming={isStreaming}
+          error={error}
           onSend={handleSend}
+          onRetry={() => selectedTrade && start(selectedTrade.fullHash)}
         />
       </div>
     </div>
