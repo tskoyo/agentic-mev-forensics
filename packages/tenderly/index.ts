@@ -13,6 +13,8 @@ export interface TenderlyClientOptions {
 
 export interface TokenDelta {
     token_address: string;
+    from?: string;
+    to?: string;
     raw_amount: string;
     decimals?: number;
     symbol?: string;
@@ -62,11 +64,6 @@ export class TenderlyClient {
         this.rpc = opts.rpc;
     }
 
-    // blockNumber is the block at which to simulate. Tenderly applies the
-    // block's pre-state, so passing N replays the tx against the chain state
-    // *before* block N executed. To simulate against state "right before this
-    // tx ran" pass the tx's own block (not block - 1). Validate this end-to-end
-    // before depending on it (see issue #5).
     async simulate(
         txHash: Hash,
         blockNumber: number,
@@ -209,6 +206,8 @@ function parseSimulateResult(
 
     const token_amounts: TokenDelta[] = changes.map((c) => ({
         token_address: c.token_info?.contract_address ?? "",
+        from: c.from,
+        to: c.to,
         raw_amount: c.raw_amount ?? c.amount ?? "0",
         decimals: c.token_info?.decimals,
         symbol: c.token_info?.symbol,
@@ -218,8 +217,6 @@ function parseSimulateResult(
                 : null,
     }));
 
-    // USD PnL is computed downstream by pool-math (issue #4) — kept null here
-    // to avoid baking pricing logic into the Tenderly wrapper.
     const simulated_pnl: number | null = null;
 
     return { simulated_pnl, success, revert_reason, token_amounts };

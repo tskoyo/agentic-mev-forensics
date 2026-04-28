@@ -10,6 +10,8 @@ const tenderly = new TenderlyClient({ rpc });
 const { receipt } = await rpc.getTx(txHash);
 const blockN = Number(receipt.blockNumber);
 
+console.log("Block number is ", blockN);
+
 console.log("--- simulate at N ---");
 console.log(await tenderly.simulate(txHash, blockN));
 
