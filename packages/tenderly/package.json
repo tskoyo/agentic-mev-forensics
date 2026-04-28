@@ -1,11 +1,12 @@
 {
-    "name": "@mev/rpc",
+    "name": "@mev/tenderly",
     "version": "0.0.0",
     "private": true,
     "main": "./index.ts",
     "type": "module",
     "types": "./index.ts",
     "dependencies": {
+        "@mev/rpc": "workspace:*",
         "@mev/shared": "workspace:*",
         "viem": "^2.21.0"
     },
