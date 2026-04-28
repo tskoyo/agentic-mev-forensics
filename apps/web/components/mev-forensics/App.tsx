@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { INVESTIGATIONS, TRADES } from "@/lib/sample-data";
+import { useInvestigation } from "@/lib/useInvestigation";
 import { Header } from "./Header";
 import { TradesSidebar } from "./sidebar/TradesSidebar";
 import { InvestigationCanvas } from "./canvas/InvestigationCanvas";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export function App() {
   const [selectedId, setSelectedId] = useState<string>("tx1");
@@ -14,9 +13,6 @@ export function App() {
     if (typeof window === "undefined") return false;
     return document.documentElement.dataset.theme === "dark";
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [investigationError, setInvestigationError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -24,46 +20,23 @@ export function App() {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  function handleSelectTrade(id: string) {
-    abortRef.current?.abort();
-    setSelectedId(id);
-    setIsLoading(false);
-    setInvestigationError(null);
-  }
-
-  async function handleInvestigate() {
-    const trade = TRADES.find((t) => t.id === selectedId);
-    if (!trade) return;
-
-    abortRef.current?.abort();
-    const abort = new AbortController();
-    abortRef.current = abort;
-
-    setIsLoading(true);
-    setInvestigationError(null);
-
-    try {
-      const res = await fetch(`${API_BASE}/investigate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tx_hash: trade.fullHash }),
-        signal: abort.signal,
-      });
-      if (!res.ok) {
-        const msg = res.status === 404 ? "Trade not found" : `Server error (${res.status})`;
-        throw new Error(msg);
-      }
-      // SSE streaming wired in the next PR; loading clears when stream ends
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === "AbortError") return;
-      setInvestigationError(err instanceof Error ? err.message : "Connection failed");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
   const selectedTrade = TRADES.find((t) => t.id === selectedId);
-  const selectedInv = selectedId ? INVESTIGATIONS[selectedId] ?? null : null;
+  const activeInvestigation = liveInvestigation ?? (selectedId ? INVESTIGATIONS[selectedId] ?? null : null);
+
+  function handleSelectTrade(id: string) {
+    setSelectedId(id);
+    reset();
+  }
+
+  function handleSend(text: string) {
+    if (!selectedTrade) return;
+    const isTxHash = /^0x[0-9a-fA-F]{6,}/.test(text.trim());
+    const txHash = isTxHash ? text.trim() : selectedTrade.fullHash;
+    const question = isTxHash ? undefined : text.trim();
+    start(txHash, question);
+  }
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-canvas">
@@ -77,12 +50,11 @@ export function App() {
         />
         <InvestigationCanvas
           trade={selectedTrade}
-          investigation={selectedInv}
-          isLoading={isLoading}
-          error={investigationError}
-          onRetry={handleInvestigate}
-          onInvestigate={handleInvestigate}
-          onFollowUp={(q) => console.log("follow up:", q)}
+          investigation={activeInvestigation}
+          isStreaming={isStreaming}
+          error={error}
+          onSend={handleSend}
+          onRetry={() => selectedTrade && start(selectedTrade.fullHash)}
         />
       </div>
     </div>
