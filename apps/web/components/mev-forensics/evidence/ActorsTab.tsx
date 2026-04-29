@@ -1,6 +1,7 @@
 import type { Actor } from "@/lib/types";
 import { AddressChip } from "../primitives/AddressChip";
 import { CopyIcon } from "../primitives/icons";
+import { Mono } from "../primitives/Mono";
 import { RoleChip } from "../primitives/RoleChip";
 
 interface Props {
