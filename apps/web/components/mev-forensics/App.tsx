@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { INVESTIGATIONS, TRADES } from "@/lib/sample-data";
+import { INVESTIGATIONS } from "@/lib/sample-data";
 import { useInvestigation } from "@/lib/useInvestigation";
+import { useTrades } from "@/lib/useTrades";
 import { Header } from "./Header";
 import { TradesSidebar } from "./sidebar/TradesSidebar";
 import { InvestigationCanvas } from "./canvas/InvestigationCanvas";
 
 export function App() {
+  const { trades } = useTrades();
   const [selectedId, setSelectedId] = useState<string>("tx1");
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -22,7 +24,7 @@ export function App() {
 
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
-  const selectedTrade = TRADES.find((t) => t.id === selectedId);
+  const selectedTrade = trades.find((t) => t.id === selectedId);
   const activeInvestigation = liveInvestigation ?? (selectedId ? INVESTIGATIONS[selectedId] ?? null : null);
 
   function handleSelectTrade(id: string) {
@@ -44,7 +46,7 @@ export function App() {
 
       <div className="flex-1 flex overflow-hidden">
         <TradesSidebar
-          trades={TRADES}
+          trades={trades}
           selectedId={selectedId}
           onSelect={handleSelectTrade}
         />
