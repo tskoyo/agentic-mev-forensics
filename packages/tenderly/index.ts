@@ -32,6 +32,8 @@ export interface TenderlyTraceResult {
     call_tree: CallFrame;
 }
 
+export const ETHEREUM_MAINNET_CHAIN_ID = "1";
+
 export class TenderlyClient {
     private readonly accessKey: string;
     private readonly username: string;
@@ -100,7 +102,7 @@ export class TenderlyClient {
         const { tx } = await this.rpc.getTx(txHash);
         const gasPrice = tx.gasPrice ?? tx.maxFeePerGas;
         const body = {
-            network_id: "1",
+            network_id: ETHEREUM_MAINNET_CHAIN_ID,
             block_number: blockNumber,
             from: tx.from,
             to: tx.to,
