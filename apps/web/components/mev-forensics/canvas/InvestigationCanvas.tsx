@@ -110,8 +110,10 @@ export function InvestigationCanvas({
 }: Props) {
   const [input, setInput] = useState("");
   const [toolsOpen, setToolsOpen] = useState(true);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const toolsEndRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (toolsEndRef.current && toolsOpen) {
@@ -124,6 +126,17 @@ export function InvestigationCanvas({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [isStreaming, investigation?.narrativeBody]);
+
+  function handleCitationClick(toolCallId: string) {
+    const el = document.querySelector(`[data-tc-id="${toolCallId}"]`);
+    if (el) {
+      if (!toolsOpen) setToolsOpen(true);
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+    setHighlightedId(toolCallId);
+    highlightTimerRef.current = setTimeout(() => setHighlightedId(null), 2000);
+  }
 
   function handleSend() {
     const text = input.trim();
@@ -251,7 +264,7 @@ export function InvestigationCanvas({
             {toolsOpen && (
               <div className="flex flex-col gap-px bg-sunken rounded-md border border-border-s overflow-hidden">
                 {inv.toolCalls.map((tc) => (
-                  <ToolCallRow key={tc.id} tc={tc} />
+                  <ToolCallRow key={tc.id} tc={tc} highlighted={highlightedId === tc.id} />
                 ))}
                 <div ref={toolsEndRef} />
               </div>
@@ -286,6 +299,8 @@ export function InvestigationCanvas({
             body={inv.narrativeBody}
             ruledOut={inv.ruledOut}
             streaming={isStreaming}
+            toolCalls={inv.toolCalls}
+            onCitationClick={handleCitationClick}
           />
         )}
 

@@ -53,7 +53,7 @@ export const INVESTIGATIONS: Record<string, Investigation> = {
     verdict: "frontrun",
     narrativeHeadline: "Frontrunner confirmed",
     narrativeBody:
-      "Tx [tx 0x8bbc…d44a] at index 11 touched the same ETH/USDC pool before your tx at index 14, consuming $25.40 of available liquidity [sim block N-1]. The competing transaction was submitted by a known MEV searcher [searcher 0x00…b6b].",
+      "Tx at index 11 touched the same ETH/USDC pool before your tx at index 14, consuming $25.40 of available liquidity [simulate_at_state]. The competing transaction was confirmed via call trace [get_tx_trace] and block scan [get_block_txs].",
     pnl: {
       expected: "$74.80",
       realized: "$49.40",
@@ -102,7 +102,7 @@ export const INVESTIGATIONS: Record<string, Investigation> = {
     verdict: "unknown",
     narrativeHeadline: "No cause found",
     narrativeBody:
-      "Full investigation completed. Gap of $8.20 confirmed [sim block N-1] but no competing transaction touched the ETH/USDC pool at a lower index [get_block_txs], and pool price was stable across the block boundary [get_pool_state]. The gap remains unexplained.",
+      "Full investigation completed. Gap of $8.20 confirmed [simulate_at_state] but no competing transaction touched the ETH/USDC pool at a lower index [get_block_txs], and pool price was stable across the block boundary [get_pool_state]. The gap remains unexplained.",
     pnl: {
       expected: "$21.40",
       realized: "$13.20",
