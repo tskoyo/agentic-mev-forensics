@@ -2,8 +2,13 @@
 
 import { useState, type ReactNode } from "react";
 import { VERDICT_STYLES } from "@/lib/styles";
-import type { RuledOut, ToolCall, Verdict } from "@/lib/types";
+import type { Actor, RuledOut, ToolCall, Verdict } from "@/lib/types";
+import { truncateAddress } from "@/lib/useAddressLabel";
+import { AddressChip } from "../primitives/AddressChip";
 import { ChevronIcon, MinusInCircleIcon } from "../primitives/icons";
+
+// Matches truncated addresses like 0x4f72…c81e or full hex addresses 0x4f72...c81e
+const ADDRESS_RE = /0x[0-9a-fA-F]{4}[…\.]{1,3}[0-9a-fA-F]{4}|0x[0-9a-fA-F]{40}/g;
 
 interface Props {
   verdict: Verdict;
@@ -12,6 +17,7 @@ interface Props {
   ruledOut?: RuledOut[];
   streaming?: boolean;
   toolCalls?: ToolCall[];
+  actors?: Actor[];
   onCitationClick?: (toolCallId: string) => void;
 }
 
@@ -71,28 +77,66 @@ function UnverifiedChip({ label }: { label: string }) {
   );
 }
 
+function splitWithAddresses(text: string): string[] {
+  const parts: string[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  ADDRESS_RE.lastIndex = 0;
+  while ((m = ADDRESS_RE.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    parts.push(m[0]);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
 function renderBody(
   text: string | null,
   toolCalls: ToolCall[],
+  actors: Actor[],
   onCitationClick: ((toolCallId: string) => void) | undefined,
 ): ReactNode {
   if (!text) return null;
-  const parts = text.split(/(\[[^\]]+\])/g);
-  return parts.map((p, i) => {
-    if (p.startsWith("[") && p.endsWith("]")) {
-      const match = findToolCall(p, toolCalls);
+
+  // First split on citation tokens [...]
+  const citationParts = text.split(/(\[[^\]]+\])/g);
+  let keyIdx = 0;
+
+  return citationParts.map((part) => {
+    if (part.startsWith("[") && part.endsWith("]")) {
+      const k = keyIdx++;
+      const match = findToolCall(part, toolCalls);
       if (match) {
         return (
-          <CitationChip
-            key={i}
-            label={p}
-            onClick={() => onCitationClick?.(match.id)}
+          <CitationChip key={k} label={part} onClick={() => onCitationClick?.(match.id)} />
+        );
+      }
+      return <UnverifiedChip key={k} label={part} />;
+    }
+
+    // Within plain text, detect and replace address-like strings
+    const addrParts = splitWithAddresses(part);
+    return addrParts.map((seg) => {
+      const k = keyIdx++;
+      if (ADDRESS_RE.test(seg) || /^0x[0-9a-fA-F]{4}[…\.]{1,3}[0-9a-fA-F]{4}$/.test(seg)) {
+        const actor = actors.find(
+          (a) =>
+            a.addr === seg ||
+            (a.fullAddr && a.fullAddr.toLowerCase() === seg.toLowerCase()),
+        );
+        return (
+          <AddressChip
+            key={k}
+            display={truncateAddress(seg)}
+            fullAddress={actor?.fullAddr ?? seg}
+            type="address"
+            className="inline-flex align-baseline mx-0.5"
           />
         );
       }
-      return <UnverifiedChip key={i} label={p} />;
-    }
-    return <span key={i}>{p}</span>;
+      return <span key={k}>{seg}</span>;
+    });
   });
 }
 
@@ -103,6 +147,7 @@ export function NarrativeBlock({
   ruledOut,
   streaming,
   toolCalls = [],
+  actors = [],
   onCitationClick,
 }: Props) {
   const vs = VERDICT_STYLES[verdict] ?? VERDICT_STYLES["not checked"];
@@ -125,7 +170,7 @@ export function NarrativeBlock({
           </div>
         )}
         <div className="text-[13px] text-text-p leading-relaxed">
-          {renderBody(body, toolCalls, onCitationClick)}
+          {renderBody(body, toolCalls, actors, onCitationClick)}
           {streaming && (
             <span className="inline-block w-[2px] h-[14px] bg-text-s align-middle ml-0.5 animate-pulse-slow" />
           )}

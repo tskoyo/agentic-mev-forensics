@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { VERDICT_STYLES } from "@/lib/styles";
 import type { Trade } from "@/lib/types";
+import { AddressChip } from "../primitives/AddressChip";
 import { Mono } from "../primitives/Mono";
 import { VerdictBadge } from "../primitives/VerdictBadge";
 
@@ -36,9 +37,13 @@ export function TradeRow({ trade, selected, onClick }: Props) {
       }}
     >
       <div className="flex items-center justify-between mb-0.5">
-        <Mono size={12} className="font-medium text-text-p">
-          {trade.hash}
-        </Mono>
+        <AddressChip
+          display={trade.hash}
+          fullAddress={trade.fullHash}
+          type="tx"
+          size={12}
+          className="font-medium"
+        />
         <VerdictBadge verdict={trade.verdict} />
       </div>
       <div className="flex items-center justify-between mt-1">

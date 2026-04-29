@@ -1,5 +1,6 @@
 import type { Actor } from "@/lib/types";
-import { CopyIcon, ExtLinkIcon } from "../primitives/icons";
+import { AddressChip } from "../primitives/AddressChip";
+import { CopyIcon } from "../primitives/icons";
 import { Mono } from "../primitives/Mono";
 import { RoleChip } from "../primitives/RoleChip";
 
@@ -42,9 +43,12 @@ export function ActorsTab({ actors }: Props) {
               </Mono>
             </div>
             <div className="flex items-center gap-1.5">
-              <Mono size={11} className="text-text-t">{a.addr}</Mono>
+              <AddressChip
+                display={a.addr}
+                fullAddress={a.fullAddr ?? a.addr}
+                type="address"
+              />
               <CopyIcon />
-              <ExtLinkIcon />
             </div>
           </div>
         );

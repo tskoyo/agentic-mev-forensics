@@ -64,10 +64,10 @@ export const INVESTIGATIONS: Record<string, Investigation> = {
     },
     followUps: ["Who ran that tx?", "Could I have won this?", "Show full block timeline"],
     actors: [
-      { role: "arbitrageur", label: "Your bot",                 addr: "0x4f72…c81e", delta: "-$25.40", deltaColor: "loss" },
-      { role: "searcher",    label: "Known MEV bot",            addr: "0x8bbc…d44a", delta: "+$25.40", deltaColor: "gain" },
-      { role: "pool",        label: "ETH/USDC · Uni v3 · 0.3%", addr: "0xa0b8…6e3c", delta: "—",       deltaColor: "neutral" },
-      { role: "builder",     label: "Block builder",            addr: "0x1f9c…8a2b", delta: "—",       deltaColor: "neutral" },
+      { role: "arbitrageur", label: "Your bot",                 addr: "0x4f72…c81e", fullAddr: "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e", delta: "-$25.40", deltaColor: "loss" },
+      { role: "searcher",    label: "Known MEV bot",            addr: "0x8bbc…d44a", fullAddr: "0x8bbc134a78d5f072de29e1e12f9524a2d28fd44a", delta: "+$25.40", deltaColor: "gain" },
+      { role: "pool",        label: "ETH/USDC · Uni v3 · 0.3%", addr: "0xa0b8…6e3c", fullAddr: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", delta: "—",       deltaColor: "neutral" },
+      { role: "builder",     label: "Block builder",            addr: "0x1f9c…8a2b", fullAddr: "0x1f9cb422e12b5dc81c7d18ea295f0d51d348a2b0", delta: "—",       deltaColor: "neutral" },
     ],
     citations: [
       {
@@ -118,8 +118,8 @@ export const INVESTIGATIONS: Record<string, Investigation> = {
       { text: "Simulation confirmed expected PnL at $21.40",                 cite: "simulate_at_state" },
     ],
     actors: [
-      { role: "arbitrageur", label: "Your bot",                 addr: "0x9d1c…e08b", delta: "-$8.20", deltaColor: "loss" },
-      { role: "pool",        label: "ETH/USDC · Uni v3 · 0.3%", addr: "0xa0b8…6e3c", delta: "—",      deltaColor: "neutral" },
+      { role: "arbitrageur", label: "Your bot",                 addr: "0x9d1c…e08b", fullAddr: "0x9d1c4e7a2f8b3d6c9e1a4f7b2e5d8c3a6f9e08b", delta: "-$8.20", deltaColor: "loss" },
+      { role: "pool",        label: "ETH/USDC · Uni v3 · 0.3%", addr: "0xa0b8…6e3c", fullAddr: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", delta: "—",      deltaColor: "neutral" },
     ],
     citations: [
       {
