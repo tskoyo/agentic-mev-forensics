@@ -54,6 +54,7 @@ export interface Actor {
   role: Role;
   label: string;
   addr: string;
+  fullAddr?: string;
   delta: string;
   deltaColor: DeltaColor;
 }
