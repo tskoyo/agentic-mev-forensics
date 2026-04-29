@@ -300,6 +300,7 @@ export function InvestigationCanvas({
             ruledOut={inv.ruledOut}
             streaming={isStreaming}
             toolCalls={inv.toolCalls}
+            actors={inv.actors}
             onCitationClick={handleCitationClick}
           />
         )}
