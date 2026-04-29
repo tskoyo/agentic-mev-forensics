@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { VERDICT_STYLES } from "@/lib/styles";
-import type { RuledOut, Verdict } from "@/lib/types";
+import type { RuledOut, ToolCall, Verdict } from "@/lib/types";
 import { ChevronIcon, MinusInCircleIcon } from "../primitives/icons";
 
 interface Props {
@@ -11,33 +11,100 @@ interface Props {
   body: string | null;
   ruledOut?: RuledOut[];
   streaming?: boolean;
+  toolCalls?: ToolCall[];
+  onCitationClick?: (toolCallId: string) => void;
 }
 
-/** Splits narrative body and renders [citation] tokens as inline chips. */
-function renderBody(text: string | null): ReactNode {
+function findToolCall(token: string, toolCalls: ToolCall[]): ToolCall | undefined {
+  const normalized = token.slice(1, -1).trim().toLowerCase();
+  return (
+    toolCalls.find((tc) => tc.id.toLowerCase() === normalized) ??
+    toolCalls.find((tc) => tc.name.toLowerCase() === normalized) ??
+    toolCalls.find((tc) => tc.name.toLowerCase().includes(normalized)) ??
+    toolCalls.find((tc) => normalized.includes(tc.name.toLowerCase()))
+  );
+}
+
+function CitationChip({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className="inline px-1.5 py-px rounded-sm font-mono text-[12px] whitespace-nowrap border cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#3B4A9E]"
+      style={{
+        background: "#EEF0FA",
+        color: "#3B4A9E",
+        borderColor: "#C5CCF0",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function UnverifiedChip({ label }: { label: string }) {
+  return (
+    <span
+      className="inline px-1.5 py-px rounded-sm font-mono text-[12px] whitespace-nowrap border"
+      style={{
+        background: "#FEF2F2",
+        color: "#B91C1C",
+        borderColor: "#FECACA",
+      }}
+      title="Claim not linked to a tool result"
+    >
+      {label} [unverified]
+    </span>
+  );
+}
+
+function renderBody(
+  text: string | null,
+  toolCalls: ToolCall[],
+  onCitationClick: ((toolCallId: string) => void) | undefined,
+): ReactNode {
   if (!text) return null;
   const parts = text.split(/(\[[^\]]+\])/g);
   return parts.map((p, i) => {
     if (p.startsWith("[") && p.endsWith("]")) {
-      return (
-        <span
-          key={i}
-          className="inline px-1.5 py-px rounded-sm font-mono text-[12px] whitespace-nowrap cursor-pointer border"
-          style={{
-            background: "#EEF0FA",
-            color: "#3B4A9E",
-            borderColor: "#C5CCF0",
-          }}
-        >
-          {p}
-        </span>
-      );
+      const match = findToolCall(p, toolCalls);
+      if (match) {
+        return (
+          <CitationChip
+            key={i}
+            label={p}
+            onClick={() => onCitationClick?.(match.id)}
+          />
+        );
+      }
+      return <UnverifiedChip key={i} label={p} />;
     }
     return <span key={i}>{p}</span>;
   });
 }
 
-export function NarrativeBlock({ verdict, headline, body, ruledOut, streaming }: Props) {
+export function NarrativeBlock({
+  verdict,
+  headline,
+  body,
+  ruledOut,
+  streaming,
+  toolCalls = [],
+  onCitationClick,
+}: Props) {
   const vs = VERDICT_STYLES[verdict] ?? VERDICT_STYLES["not checked"];
   const [expanded, setExpanded] = useState(false);
 
@@ -58,7 +125,7 @@ export function NarrativeBlock({ verdict, headline, body, ruledOut, streaming }:
           </div>
         )}
         <div className="text-[13px] text-text-p leading-relaxed">
-          {renderBody(body)}
+          {renderBody(body, toolCalls, onCitationClick)}
           {streaming && (
             <span className="inline-block w-[2px] h-[14px] bg-text-s align-middle ml-0.5 animate-pulse-slow" />
           )}

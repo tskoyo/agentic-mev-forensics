@@ -9,6 +9,7 @@ import { Mono } from "../primitives/Mono";
 
 interface Props {
   tc: ToolCall;
+  highlighted?: boolean;
 }
 
 function ElapsedTimer({ startedAt }: { startedAt: number }) {
@@ -42,14 +43,17 @@ function StatusIcon({ status }: { status: ToolCall["status"] }) {
   }
 }
 
-export function ToolCallRow({ tc }: Props) {
+export function ToolCallRow({ tc, highlighted = false }: Props) {
   const s = TOOL_STATUS_STYLES[tc.status] ?? TOOL_STATUS_STYLES.pending;
   return (
     <div
+      data-tc-id={tc.id}
       className={cn(
         "flex items-center gap-2.5 px-3 py-[7px]",
         "border-b border-border-s bg-surface",
+        "transition-all duration-200",
         s.dim ? "opacity-50" : "opacity-100",
+        highlighted && "ring-1 ring-inset ring-green bg-[#F0F8F4]",
       )}
       title={tc.status === "error" && tc.error ? tc.error : undefined}
     >
