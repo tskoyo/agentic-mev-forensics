@@ -1,0 +1,19 @@
+{
+    "name": "@mev/api",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "tsx watch index.ts",
+        "start": "tsx index.ts"
+    },
+    "dependencies": {
+        "@hono/node-server": "catalog:",
+        "@mev/shared": "workspace:*",
+        "dotenv": "catalog:",
+        "hono": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:"
+    }
+}

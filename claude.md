@@ -222,13 +222,15 @@ interface TradeReport {
 ## Hono API endpoints
 
 ```
-GET  /trades                  → list of curated demo trades
-POST /investigate             → manual trigger: start Claude tool-use loop, stream SSE
-GET  /reports/:id             → return saved investigation report
-POST /webhook/tenderly        → automatic trigger: receive Tenderly webhook, extract tx_hash, start investigation
-POST /wallets                 → register a wallet address for monitoring
-GET  /wallets                 → list registered wallet addresses
+GET  /trades                          → sidebar list of investigated trades (TradeListItem[]), sorted by block desc
+GET  /trades/:tx_hash                 → full TradeReport for an investigated trade (404 if not investigated)
+POST /trades/:tx_hash/investigate     → manual trigger: run Claude tool-use loop, stream SSE
+POST /webhook/tenderly                → automatic trigger: receive Tenderly webhook, extract tx_hash, start investigation
+POST /wallets                         → register a wallet address for monitoring
+GET  /wallets                         → list registered wallet addresses
 ```
+
+Reports persist to `apps/api/data/reports/<tx_hash>.json` — one file per investigation. `/trades` reads the directory and projects each report into the sidebar shape (deriving `verdict`, `pnl_delta_usd`, and `block`). An empty directory yields `[]`; the frontend renders the "Paste a tx hash or wait for a webhook" empty state.
 
 ### SSE event shapes
 ```typescript
@@ -314,7 +316,7 @@ Wallet monitor detects new tx from registered wallet address
 
 ```
 User pastes tx hash into chat UI
-→ POST /investigate
+→ POST /trades/:tx_hash/investigate
 → investigation runs
 → report appears in dashboard
 ```

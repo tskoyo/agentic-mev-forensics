@@ -4,16 +4,34 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@hono/node-server':
+      specifier: ^2.0.1
+      version: 2.0.1
+    '@types/node':
+      specifier: ^25.6.0
+      version: 25.6.0
+    dotenv:
+      specifier: ^17.4.2
+      version: 17.4.2
+    hono:
+      specifier: ^4.12.15
+      version: 4.12.16
+    typescript:
+      specifier: ^6.0.3
+      version: 6.0.3
+    viem:
+      specifier: ^2.21.0
+      version: 2.48.4
+
 importers:
 
   .:
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
+        specifier: 'catalog:'
         version: 25.6.0
-      dotenv:
-        specifier: ^17.4.2
-        version: 17.4.2
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -21,8 +39,27 @@ importers:
         specifier: ^2.9.6
         version: 2.9.6
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
+
+  apps/api:
+    dependencies:
+      '@hono/node-server':
+        specifier: 'catalog:'
+        version: 2.0.1(hono@4.12.16)
+      '@mev/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+      hono:
+        specifier: 'catalog:'
+        version: 4.12.16
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
 
   apps/web:
     dependencies:
@@ -67,11 +104,11 @@ importers:
         specifier: workspace:*
         version: link:../shared
       viem:
-        specifier: ^2.21.0
+        specifier: 'catalog:'
         version: 2.48.4(typescript@6.0.3)
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
+        specifier: 'catalog:'
         version: 25.6.0
 
   packages/shared: {}
@@ -85,11 +122,11 @@ importers:
         specifier: workspace:*
         version: link:../shared
       viem:
-        specifier: ^2.21.0
+        specifier: 'catalog:'
         version: 2.48.4(typescript@6.0.3)
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
+        specifier: 'catalog:'
         version: 25.6.0
 
 packages:
@@ -259,6 +296,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@hono/node-server@2.0.1':
+    resolution: {integrity: sha512-jI9yMDyFpqBeSighf/zlXnQG/nl9AyBc6aAgy4XtxJMyt/CNyJpvPfzDD+bCc2zAOmhhqtF6TnmIaY+xV4mIrw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      hono: ^4
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -715,6 +758,10 @@ packages:
     resolution: {integrity: sha512-ej4AhfhfL2Q2zpMmLo7U1Uv9+PyhIZpgQLGT1F9miIGmiCJIoCgSmczFdrc97mWT4kVY72KA+WnnhJ5pghSvSg==}
     engines: {node: '>= 0.4'}
 
+  hono@4.12.16:
+    resolution: {integrity: sha512-jN0ZewiNAWSe5khM3EyCmBb250+b40wWbwNILNfEvq84VREWwOIkuUsFONk/3i3nqkz7Oe1PcpM2mwQEK2L9Kg==}
+    engines: {node: '>=16.9.0'}
+
   is-binary-path@2.1.0:
     resolution: {integrity: sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==}
     engines: {node: '>=8'}
@@ -1137,6 +1184,10 @@ snapshots:
   '@esbuild/win32-x64@0.27.7':
     optional: true
 
+  '@hono/node-server@2.0.1(hono@4.12.16)':
+    dependencies:
+      hono: 4.12.16
+
   '@img/colour@1.1.0':
     optional: true
 
@@ -1498,6 +1549,8 @@ snapshots:
   hasown@2.0.3:
     dependencies:
       function-bind: 1.1.2
+
+  hono@4.12.16: {}
 
   is-binary-path@2.1.0:
     dependencies:

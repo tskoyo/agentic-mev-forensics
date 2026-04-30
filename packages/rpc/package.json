@@ -7,9 +7,9 @@
     "types": "./index.ts",
     "dependencies": {
         "@mev/shared": "workspace:*",
-        "viem": "^2.21.0"
+        "viem": "catalog:"
     },
     "devDependencies": {
-        "@types/node": "^25.6.0"
+        "@types/node": "catalog:"
     }
 }
