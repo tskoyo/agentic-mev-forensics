@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, SearchX } from "lucide-react";
+import { verdictFollowUps } from "@mev/agent";
 import type { Investigation, Trade, ToolCall, Verdict } from "@/lib/types";
 import { Header } from "@/components/mev-forensics/Header";
 import { TradesSidebar } from "@/components/mev-forensics/sidebar/TradesSidebar";
@@ -51,11 +52,6 @@ function verdictHeadline(v: Verdict): string {
   return "Investigation complete";
 }
 
-function verdictFollowUps(v: Verdict): string[] {
-  if (v === "frontrun") return ["Who ran that tx?", "Could I have won this?"];
-  if (v === "unknown") return ["What else could explain this?", "How confident are you?"];
-  return ["Show me the simulation details"];
-}
 
 function fmtUsd(n: number): string {
   return `$${Math.abs(n).toFixed(2)}`;
