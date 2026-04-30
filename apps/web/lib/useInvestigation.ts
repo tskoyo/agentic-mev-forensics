@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { verdictFollowUps } from "@mev/agent";
 import type { Investigation, ToolCall, Verdict } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -44,11 +45,6 @@ function verdictHeadline(verdict: Verdict): string {
   return "Investigation complete";
 }
 
-function verdictFollowUps(verdict: Verdict): string[] {
-  if (verdict === "frontrun") return ["Who ran that tx?", "Could I have won this?"];
-  if (verdict === "unknown") return ["What else could explain this?", "How confident are you?"];
-  return ["Show me the simulation details"];
-}
 
 function fmtUsd(n: number) {
   return `$${Math.abs(n).toFixed(2)}`;
