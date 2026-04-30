@@ -1,33 +1,71 @@
 import "dotenv/config";
+import { readdir, readFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import type { TradeRef } from "@mev/shared";
+import { Outcome, RootCause, TradeVerdict } from "@mev/shared";
+import type {
+    GetTradeOutput,
+    TradeListItem,
+    TradeReport,
+} from "@mev/shared";
 
-const REQUIRED_ENV = [
-    "ANTHROPIC_API_KEY",
-    "ALCHEMY_RPC_URL",
-    "TENDERLY_ACCESS_KEY",
-] as const;
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPORTS_DIR = join(__dirname, "data", "reports");
 
-for (const key of REQUIRED_ENV) {
-    if (!process.env[key]) {
-        console.warn(`Warning: env var ${key} is not set`);
+function extractBlock(report: TradeReport): number | null {
+    const getTradeCall = report.tool_calls.find((c) => c.name === "get_trade");
+    const output = getTradeCall?.output as GetTradeOutput | undefined;
+    return output?.block ?? null;
+}
+
+function deriveVerdict(report: TradeReport): TradeVerdict {
+    if (
+        report.outcome === Outcome.SuccessUnderperformed &&
+        report.root_cause === RootCause.FrontrunSameBlock
+    ) {
+        return TradeVerdict.Frontrun;
+    }
+    if (
+        report.outcome === Outcome.SuccessUnderperformed &&
+        report.root_cause === RootCause.Unknown
+    ) {
+        return report.tool_calls.length <= 2
+            ? TradeVerdict.Normal
+            : TradeVerdict.Unknown;
+    }
+    return TradeVerdict.Unknown;
+}
+
+async function readReport(tx_hash: string): Promise<TradeReport | null> {
+    try {
+        const raw = await readFile(join(REPORTS_DIR, `${tx_hash}.json`), "utf-8");
+        return JSON.parse(raw) as TradeReport;
+    } catch (err: unknown) {
+        if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+        throw err;
     }
 }
 
-const DEMO_TRADES: TradeRef[] = [
-    {
-        tx_hash: "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e",
-        label: "Arb underperformed — frontrun",
-        description: "Expected $74.80, realized $49.40. Frontrunner at index 11.",
-    },
-    {
-        tx_hash: "0x9d1c4e7a2f8b3d6c9e1a4f7b2e5d8c3a6f9e08b",
-        label: "Arb underperformed — unknown",
-        description: "Expected $21.40, realized $13.20. No cause found after full investigation.",
-    },
-];
+async function listReports(): Promise<TradeReport[]> {
+    try {
+        const files = await readdir(REPORTS_DIR);
+        return await Promise.all(
+            files
+                .filter((f) => f.endsWith(".json"))
+                .map((f) =>
+                    readFile(join(REPORTS_DIR, f), "utf-8").then(
+                        (raw) => JSON.parse(raw) as TradeReport,
+                    ),
+                ),
+        );
+    } catch (err: unknown) {
+        if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
+        throw err;
+    }
+}
 
 const app = new Hono();
 
@@ -42,7 +80,27 @@ app.use(
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-app.get("/trades", (c) => c.json(DEMO_TRADES));
+app.get("/trades", async (c) => {
+    const reports = await listReports();
+    const items: TradeListItem[] = reports
+        .map((r) => ({
+            tx_hash: r.tx_hash,
+            verdict: deriveVerdict(r),
+            pnl_delta_usd: r.pnl_delta,
+            block: extractBlock(r),
+            is_auto: false,
+        }))
+        .sort((a, b) => (b.block ?? 0) - (a.block ?? 0));
+
+    return c.json(items);
+});
+
+app.get("/trades/:tx_hash", async (c) => {
+    const tx_hash = c.req.param("tx_hash");
+    const report = await readReport(tx_hash);
+    if (!report) return c.json({ error: "Report not found" }, 404);
+    return c.json(report);
+});
 
 const PORT = 3001;
 

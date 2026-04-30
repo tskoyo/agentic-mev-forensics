@@ -5,30 +5,48 @@
 // Other codes are reserved — adding them is a future scope item,
 // not a free-form extension point.
 
-export type Outcome = "A2" | "A9";
-export type RootCause = "B1" | "B9";
+export const Outcome = {
+    SuccessUnderperformed: "A2",
+    Unknown: "A9",
+} as const;
+export type Outcome = (typeof Outcome)[keyof typeof Outcome];
 
-export type OutcomeCodeFuture =
-    | "A1"
-    | "A3"
-    | "A4"
-    | "A5";
-
-export type RootCauseCodeFuture =
-    | "B2"
-    | "B3"
-    | "B4"
-    | "B5"
-    | "B6"
-    | "B7"
-    | "B8";
+export const RootCause = {
+    FrontrunSameBlock: "B1",
+    Unknown: "B9",
+} as const;
+export type RootCause = (typeof RootCause)[keyof typeof RootCause];
 
 // Trade reference (curated demo trade or user-submitted hash)
-
 export interface TradeRef {
     tx_hash: string;
     label?: string;
     description?: string;
+}
+
+// Trade list item — what GET /trades returns. Powers the sidebar:
+// seed trades that haven't been investigated render as `not_checked`;
+// completed investigations carry their derived verdict.
+
+// export type TradeVerdict = "frontrun" | "unknown" | "normal" | "not_checked";
+
+export const TradeVerdict = {
+    Frontrun: "frontrun",
+    Normal: "normal",
+    Unknown: "unknown",
+    NotChecked: "not_checked",
+}
+
+export type TradeVerdict = (typeof TradeVerdict)[keyof typeof TradeVerdict];
+
+export interface TradeListItem {
+    tx_hash: string;
+    label?: string;
+    description?: string;
+    verdict: TradeVerdict;
+    pnl_delta_usd: number | null;
+    block: number | null;
+    is_auto: boolean;
 }
 
 // Tool surface — names, inputs, outputs
