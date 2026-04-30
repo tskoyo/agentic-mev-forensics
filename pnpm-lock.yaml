@@ -103,6 +103,9 @@ importers:
       '@mev/shared':
         specifier: workspace:*
         version: link:../shared
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
       viem:
         specifier: 'catalog:'
         version: 2.48.4(typescript@6.0.3)
