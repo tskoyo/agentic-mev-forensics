@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { INVESTIGATIONS } from "@/lib/sample-data";
 import { useInvestigation } from "@/lib/useInvestigation";
 import { useTrades } from "@/lib/useTrades";
 import { Header } from "./Header";
@@ -10,7 +9,7 @@ import { InvestigationCanvas } from "./canvas/InvestigationCanvas";
 
 export function App() {
   const { trades } = useTrades();
-  const [selectedId, setSelectedId] = useState<string>("tx1");
+  const [selectedId, setSelectedId] = useState<string>("");
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
     return document.documentElement.dataset.theme === "dark";
@@ -22,10 +21,14 @@ export function App() {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
+  useEffect(() => {
+    if (!selectedId && trades.length > 0) setSelectedId(trades[0].id);
+  }, [trades, selectedId]);
+
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
   const selectedTrade = trades.find((t) => t.id === selectedId);
-  const activeInvestigation = liveInvestigation ?? (selectedId ? INVESTIGATIONS[selectedId] ?? null : null);
+  const activeInvestigation = liveInvestigation ?? null;
 
   function handleSelectTrade(id: string) {
     setSelectedId(id);
