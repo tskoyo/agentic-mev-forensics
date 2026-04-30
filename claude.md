@@ -366,6 +366,7 @@ User can also browse existing reports in the trade list and ask follow-up questi
 6. **Never** claim Tenderly is a hackathon sponsor (they're not)
 7. **Always** use dual threshold (gap% AND gap_usd), not flat 5%
 8. **Always** enforce tool budget in loop code, not the prompt
+9. **Always** use the gh CLI for any GitHub-side query (PR state, issues, checks, comments) — don't shell out to git log/git diff or fetch URLs when gh has a direct equivalent.
 
 ---
 
