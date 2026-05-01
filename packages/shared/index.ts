@@ -208,6 +208,7 @@ export interface TradeReport {
     narrative: string;
     tool_calls: ToolCall[];
     created_at: number;
+    is_auto: boolean;
 }
 
 // Gap threshold — dual condition (both must fail to skip)
