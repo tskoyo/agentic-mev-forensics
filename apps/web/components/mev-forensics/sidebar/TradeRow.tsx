@@ -44,7 +44,15 @@ export function TradeRow({ trade, selected, onClick }: Props) {
           size={12}
           className="font-medium"
         />
-        <VerdictBadge verdict={trade.verdict} />
+        <div className="flex items-center gap-1">
+          {trade.source === "webhook" && (
+            <span className="inline-flex items-center gap-1 rounded px-2 py-[2px] text-[11px] font-medium whitespace-nowrap border bg-green-bg text-green border-green-bd">
+              <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse-slow" />
+              auto
+            </span>
+          )}
+          <VerdictBadge verdict={trade.verdict} />
+        </div>
       </div>
       <div className="flex items-center justify-between mt-1">
         <span className="text-xs text-text-s">{trade.summary}</span>
