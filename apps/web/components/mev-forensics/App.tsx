@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { INVESTIGATIONS } from "@/lib/sample-data";
 import { useInvestigation } from "@/lib/useInvestigation";
 import { useTrades } from "@/lib/useTrades";
 import { useWebhookEvents } from "@/lib/useWebhookEvents";
@@ -13,7 +12,7 @@ import type { ToastItem } from "./WebhookToastStack";
 
 export function App() {
   const { trades } = useTrades();
-  const [selectedId, setSelectedId] = useState<string>("tx1");
+  const [selectedId, setSelectedId] = useState<string>("");
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
     return document.documentElement.dataset.theme === "dark";
@@ -24,6 +23,10 @@ export function App() {
     root.dataset.theme = dark ? "dark" : "light";
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
+
+  useEffect(() => {
+    if (!selectedId && trades.length > 0) setSelectedId(trades[0].tx_hash);
+  }, [trades, selectedId]);
 
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
@@ -39,8 +42,8 @@ export function App() {
 
   useWebhookEvents({ trades, onNewWebhookTrade: addToast });
 
-  const selectedTrade = trades.find((t) => t.id === selectedId);
-  const activeInvestigation = liveInvestigation ?? (selectedId ? INVESTIGATIONS[selectedId] ?? null : null);
+  const selectedTrade = trades.find((t) => t.tx_hash === selectedId);
+  const activeInvestigation = liveInvestigation ?? null;
 
   function handleSelectTrade(id: string) {
     setSelectedId(id);
@@ -48,9 +51,9 @@ export function App() {
   }
 
   function handleJumpToTrade(txHash: string) {
-    const trade = trades.find((t) => t.fullHash === txHash);
+    const trade = trades.find((t) => t.tx_hash === txHash);
     if (trade) {
-      setSelectedId(trade.id);
+      setSelectedId(trade.tx_hash);
       reset();
     }
   }
@@ -58,7 +61,7 @@ export function App() {
   function handleSend(text: string) {
     if (!selectedTrade) return;
     const isTxHash = /^0x[0-9a-fA-F]{6,}/.test(text.trim());
-    const txHash = isTxHash ? text.trim() : selectedTrade.fullHash;
+    const txHash = isTxHash ? text.trim() : selectedTrade.tx_hash;
     const question = isTxHash ? undefined : text.trim();
     start(txHash, question);
   }
@@ -79,7 +82,7 @@ export function App() {
           isStreaming={isStreaming}
           error={error}
           onSend={handleSend}
-          onRetry={() => selectedTrade && start(selectedTrade.fullHash)}
+          onRetry={() => selectedTrade && start(selectedTrade.tx_hash)}
         />
       </div>
 
