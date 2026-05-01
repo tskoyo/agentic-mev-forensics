@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useInvestigation } from "@/lib/useInvestigation";
 import { useTrades } from "@/lib/useTrades";
+import { useWebhookEvents } from "@/lib/useWebhookEvents";
 import { Header } from "./Header";
 import { TradesSidebar } from "./sidebar/TradesSidebar";
 import { InvestigationCanvas } from "./canvas/InvestigationCanvas";
+import { WebhookToastStack } from "./WebhookToastStack";
+import type { ToastItem } from "./WebhookToastStack";
 
 export function App() {
   const { trades } = useTrades();
@@ -27,12 +30,33 @@ export function App() {
 
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  const addToast = useCallback((txHash: string) => {
+    setToasts((prev) => [...prev, { id: `${Date.now()}-${txHash}`, txHash }]);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  useWebhookEvents({ trades, onNewWebhookTrade: addToast });
+
+
   const selectedTrade = trades.find((t) => t.tx_hash === selectedId);
   const activeInvestigation = liveInvestigation ?? null;
 
   function handleSelectTrade(id: string) {
     setSelectedId(id);
     reset();
+  }
+
+  function handleJumpToTrade(txHash: string) {
+    const trade = trades.find((t) => t.tx_hash === txHash);
+    if (trade) {
+      setSelectedId(trade.tx_hash);
+      reset();
+    }
   }
 
   function handleSend(text: string) {
@@ -62,6 +86,12 @@ export function App() {
           onRetry={() => selectedTrade && start(selectedTrade.tx_hash)}
         />
       </div>
+
+      <WebhookToastStack
+        toasts={toasts}
+        onDismiss={dismissToast}
+        onJump={handleJumpToTrade}
+      />
     </div>
   );
 }

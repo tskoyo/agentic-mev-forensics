@@ -88,7 +88,7 @@ app.get("/trades", async (c) => {
             verdict: deriveVerdict(r),
             pnl_delta_usd: r.pnl_delta,
             block: extractBlock(r),
-            is_auto: false,
+            is_auto: r.is_auto ?? false,
         }))
         .sort((a, b) => (b.block ?? 0) - (a.block ?? 0));
 

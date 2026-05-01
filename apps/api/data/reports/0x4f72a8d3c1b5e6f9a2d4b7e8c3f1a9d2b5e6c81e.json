@@ -1,133 +1,134 @@
 {
-    "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e",
-    "outcome": "A2",
-    "root_cause": "B1",
-    "expected_pnl": 74.8,
-    "realized_pnl": 49.4,
-    "pnl_delta": -25.4,
-    "confidence": 0.92,
-    "evidence": [
+  "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e",
+  "outcome": "A2",
+  "root_cause": "B1",
+  "expected_pnl": 74.8,
+  "realized_pnl": 49.4,
+  "pnl_delta": -25.4,
+  "confidence": 0.92,
+  "evidence": [
+    {
+      "id": "ev_1",
+      "tool_call_id": "tc_2",
+      "claim": "Simulating the trade against block 19450127 state yields $74.80 expected PnL.",
+      "data": {
+        "simulated_pnl": 74.8,
+        "success": true
+      }
+    },
+    {
+      "id": "ev_2",
+      "tool_call_id": "tc_3",
+      "claim": "Tx at index 11 in block 19450128 (0xa1b2c3...) swapped on the same WETH/USDC pool before this trade landed at index 14.",
+      "data": {
+        "competitor_index": 11,
+        "target_index": 14,
+        "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
+      }
+    },
+    {
+      "id": "ev_3",
+      "tool_call_id": "tc_4",
+      "claim": "Competitor swap traced through Uniswap V3 router, consumed 142 WETH of liquidity in the active tick range.",
+      "data": {
+        "consumed_liquidity_weth": 142
+      }
+    }
+  ],
+  "counterfactuals": [
+    {
+      "scenario": "Competitor tx removed from block",
+      "pnl": 74.8,
+      "delta_vs_realized": 25.4
+    }
+  ],
+  "narrative": "Your trade succeeded but earned $25.40 less than expected because a competitor at index 11 swapped on the same WETH/USDC pool before you (you landed at index 14). Their swap consumed 142 WETH of liquidity in the active tick range, moving the price against you. [ev_1] [ev_2] [ev_3]",
+  "tool_calls": [
+    {
+      "id": "tc_1",
+      "name": "get_trade",
+      "input": {
+        "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e"
+      },
+      "output": {
+        "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e",
+        "from": "0xb0bb1ed11ef0e6c9e1a4f7b2e5d8c3a6f9e08b00",
+        "to": "0xe592427a0aece92de3edee1f18e0157c05861564",
+        "block": 19450128,
+        "index": 14,
+        "value": "0",
+        "gas_used": 184320,
+        "gas_price": "32000000000",
+        "status": "success",
+        "calldata": "0x414bf389...",
+        "logs": [],
+        "realized_pnl": 49.4
+      },
+      "status": "done",
+      "started_at": 1714492800000,
+      "ended_at": 1714492800420,
+      "duration_ms": 420
+    },
+    {
+      "id": "tc_2",
+      "name": "simulate_at_state",
+      "input": {
+        "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e",
+        "block": 19450127
+      },
+      "output": {
+        "simulated_pnl": 74.8,
+        "success": true,
+        "revert_reason": null
+      },
+      "status": "done",
+      "started_at": 1714492800500,
+      "ended_at": 1714492801800,
+      "duration_ms": 1300
+    },
+    {
+      "id": "tc_3",
+      "name": "get_block_txs",
+      "input": {
+        "block_number": 19450128
+      },
+      "output": [
         {
-            "id": "ev_1",
-            "tool_call_id": "tc_2",
-            "claim": "Simulating the trade against block 19450127 state yields $74.80 expected PnL.",
-            "data": {
-                "simulated_pnl": 74.8,
-                "success": true
-            }
-        },
-        {
-            "id": "ev_2",
-            "tool_call_id": "tc_3",
-            "claim": "Tx at index 11 in block 19450128 (0xa1b2c3...) swapped on the same WETH/USDC pool before this trade landed at index 14.",
-            "data": {
-                "competitor_index": 11,
-                "target_index": 14,
-                "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
-            }
-        },
-        {
-            "id": "ev_3",
-            "tool_call_id": "tc_4",
-            "claim": "Competitor swap traced through Uniswap V3 router, consumed 142 WETH of liquidity in the active tick range.",
-            "data": {
-                "consumed_liquidity_weth": 142
-            }
+          "index": 11,
+          "tx_hash": "0xa1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4",
+          "from": "0xfeedfeedfeedfeedfeedfeedfeedfeedfeedfeed",
+          "to": "0xe592427a0aece92de3edee1f18e0157c05861564",
+          "touched_pools": [
+            "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
+          ]
         }
-    ],
-    "counterfactuals": [
-        {
-            "scenario": "Competitor tx removed from block",
-            "pnl": 74.8,
-            "delta_vs_realized": 25.4
+      ],
+      "status": "done",
+      "started_at": 1714492801900,
+      "ended_at": 1714492802700,
+      "duration_ms": 800
+    },
+    {
+      "id": "tc_4",
+      "name": "get_tx_trace",
+      "input": {
+        "tx_hash": "0xa1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4"
+      },
+      "output": {
+        "call_tree": {
+          "type": "CALL",
+          "from": "0xfeedfeedfeedfeedfeedfeedfeedfeedfeedfeed",
+          "to": "0xe592427a0aece92de3edee1f18e0157c05861564",
+          "input": "0x414bf389...",
+          "gas_used": 152000
         }
-    ],
-    "narrative": "Your trade succeeded but earned $25.40 less than expected because a competitor at index 11 swapped on the same WETH/USDC pool before you (you landed at index 14). Their swap consumed 142 WETH of liquidity in the active tick range, moving the price against you. [ev_1] [ev_2] [ev_3]",
-    "tool_calls": [
-        {
-            "id": "tc_1",
-            "name": "get_trade",
-            "input": {
-                "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e"
-            },
-            "output": {
-                "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e",
-                "from": "0xb0bb1ed11ef0e6c9e1a4f7b2e5d8c3a6f9e08b00",
-                "to": "0xe592427a0aece92de3edee1f18e0157c05861564",
-                "block": 19450128,
-                "index": 14,
-                "value": "0",
-                "gas_used": 184320,
-                "gas_price": "32000000000",
-                "status": "success",
-                "calldata": "0x414bf389...",
-                "logs": [],
-                "realized_pnl": 49.4
-            },
-            "status": "done",
-            "started_at": 1714492800000,
-            "ended_at": 1714492800420,
-            "duration_ms": 420
-        },
-        {
-            "id": "tc_2",
-            "name": "simulate_at_state",
-            "input": {
-                "tx_hash": "0x4f72a8d3c1b5e6f9a2d4b7e8c3f1a9d2b5e6c81e",
-                "block": 19450127
-            },
-            "output": {
-                "simulated_pnl": 74.8,
-                "success": true,
-                "revert_reason": null
-            },
-            "status": "done",
-            "started_at": 1714492800500,
-            "ended_at": 1714492801800,
-            "duration_ms": 1300
-        },
-        {
-            "id": "tc_3",
-            "name": "get_block_txs",
-            "input": {
-                "block_number": 19450128
-            },
-            "output": [
-                {
-                    "index": 11,
-                    "tx_hash": "0xa1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4",
-                    "from": "0xfeedfeedfeedfeedfeedfeedfeedfeedfeedfeed",
-                    "to": "0xe592427a0aece92de3edee1f18e0157c05861564",
-                    "touched_pools": [
-                        "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
-                    ]
-                }
-            ],
-            "status": "done",
-            "started_at": 1714492801900,
-            "ended_at": 1714492802700,
-            "duration_ms": 800
-        },
-        {
-            "id": "tc_4",
-            "name": "get_tx_trace",
-            "input": {
-                "tx_hash": "0xa1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4"
-            },
-            "output": {
-                "call_tree": {
-                    "type": "CALL",
-                    "from": "0xfeedfeedfeedfeedfeedfeedfeedfeedfeedfeed",
-                    "to": "0xe592427a0aece92de3edee1f18e0157c05861564",
-                    "input": "0x414bf389...",
-                    "gas_used": 152000
-                }
-            },
-            "status": "done",
-            "started_at": 1714492802800,
-            "ended_at": 1714492803900,
-            "duration_ms": 1100
-        }
-    ],
-    "created_at": 1714492804000
+      },
+      "status": "done",
+      "started_at": 1714492802800,
+      "ended_at": 1714492803900,
+      "duration_ms": 1100
+    }
+  ],
+  "created_at": 1714492804000,
+  "is_auto": false
 }
