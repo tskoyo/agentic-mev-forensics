@@ -230,7 +230,8 @@ export type SSEEvent =
     | SSEToolCallEvent
     | SSETextDeltaEvent
     | SSEReportEvent
-    | SSEErrorEvent;
+    | SSEErrorEvent
+    | SSEInvestigationStartedEvent;
 
 export interface SSEToolCallEvent {
     type: "tool_call";
@@ -255,6 +256,15 @@ export interface SSEReportEvent {
 export interface SSEErrorEvent {
     type: "error";
     message: string;
+}
+
+// Emitted by the server when any investigation starts (manual or webhook).
+// The frontend listens on GET /events for this event to show the toast
+// and add the trade to the sidebar without a page refresh.
+export interface SSEInvestigationStartedEvent {
+    type: "investigation_started";
+    tx_hash: string;
+    source: "manual" | "webhook";
 }
 
 // Wallet monitoring (automatic trigger path)
