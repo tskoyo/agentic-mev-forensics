@@ -1,0 +1,19 @@
+{
+    "name": "@mev/agent",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./index.ts",
+    "type": "module",
+    "types": "./index.ts",
+    "dependencies": {
+        "@mev/claude": "workspace:*",
+        "@mev/rpc": "workspace:*",
+        "@mev/shared": "workspace:*",
+        "@mev/tenderly": "workspace:*",
+        "dotenv": "catalog:",
+        "viem": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:"
+    }
+}
