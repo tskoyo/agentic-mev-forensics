@@ -1,0 +1,16 @@
+{
+    "name": "@mev/claude",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./index.ts",
+    "type": "module",
+    "types": "./index.ts",
+    "dependencies": {
+        "@anthropic-ai/sdk": "^0.92.0",
+        "@mev/shared": "workspace:*",
+        "dotenv": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:"
+    }
+}
