@@ -5,7 +5,6 @@ import { INVESTIGATIONS } from "@/lib/sample-data";
 import { useInvestigation } from "@/lib/useInvestigation";
 import { useTrades } from "@/lib/useTrades";
 import { useWebhookEvents } from "@/lib/useWebhookEvents";
-import type { Trade } from "@/lib/types";
 import { Header } from "./Header";
 import { TradesSidebar } from "./sidebar/TradesSidebar";
 import { InvestigationCanvas } from "./canvas/InvestigationCanvas";
@@ -13,7 +12,7 @@ import { WebhookToastStack } from "./WebhookToastStack";
 import type { ToastItem } from "./WebhookToastStack";
 
 export function App() {
-  const { trades, addTrade } = useTrades();
+  const { trades } = useTrades();
   const [selectedId, setSelectedId] = useState<string>("tx1");
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -38,24 +37,7 @@ export function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const handleWebhookInvestigation = useCallback((txHash: string) => {
-    const short = `${txHash.slice(0, 6)}…${txHash.slice(-4)}`;
-    const trade: Trade = {
-      id: txHash,
-      hash: short,
-      fullHash: txHash,
-      summary: "Webhook investigation started",
-      verdict: "not checked",
-      pnlDelta: "—",
-      block: "—",
-      ago: "just now",
-      source: "webhook",
-    };
-    addTrade(trade);
-    addToast(txHash);
-  }, [addTrade, addToast]);
-
-  useWebhookEvents({ onWebhookInvestigation: handleWebhookInvestigation });
+  useWebhookEvents({ trades, onNewWebhookTrade: addToast });
 
   const selectedTrade = trades.find((t) => t.id === selectedId);
   const activeInvestigation = liveInvestigation ?? (selectedId ? INVESTIGATIONS[selectedId] ?? null : null);

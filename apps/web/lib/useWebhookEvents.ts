@@ -1,40 +1,33 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
-interface InvestigationStartedEvent {
-  type: "investigation_started";
-  tx_hash: string;
-  source: "manual" | "webhook";
-}
+import type { Trade } from "./types";
 
 interface Options {
-  onWebhookInvestigation: (txHash: string) => void;
+  trades: Trade[];
+  onNewWebhookTrade: (txHash: string) => void;
 }
 
-// Listens to GET /events (global SSE stream) and fires onWebhookInvestigation
-// whenever the server reports a webhook-triggered investigation. Uses a ref so
-// the callback can change between renders without restarting the EventSource.
-export function useWebhookEvents({ onWebhookInvestigation }: Options) {
-  const callbackRef = useRef(onWebhookInvestigation);
-  callbackRef.current = onWebhookInvestigation;
+// Watches the trades list (kept fresh by useTrades polling) and fires
+// onNewWebhookTrade for any webhook trade that wasn't present on first render.
+// No extra fetch — piggybacks on the existing polling in useTrades.
+export function useWebhookEvents({ trades, onNewWebhookTrade }: Options) {
+  const seenRef = useRef<Set<string> | null>(null);
+  const callbackRef = useRef(onNewWebhookTrade);
+  callbackRef.current = onNewWebhookTrade;
 
   useEffect(() => {
-    const es = new EventSource(`${API_BASE}/events`);
+    if (seenRef.current === null) {
+      // Baseline snapshot on first render — don't toast for existing trades.
+      seenRef.current = new Set(trades.map((t) => t.fullHash));
+      return;
+    }
 
-    es.onmessage = (e: MessageEvent) => {
-      try {
-        const event = JSON.parse(e.data as string) as InvestigationStartedEvent;
-        if (event.type === "investigation_started" && event.source === "webhook") {
-          callbackRef.current(event.tx_hash);
-        }
-      } catch {
-        // ignore malformed frames
+    for (const trade of trades) {
+      if (trade.source === "webhook" && !seenRef.current.has(trade.fullHash)) {
+        seenRef.current.add(trade.fullHash);
+        callbackRef.current(trade.fullHash);
       }
-    };
-
-    return () => es.close();
-  }, []);
+    }
+  }, [trades]);
 }
