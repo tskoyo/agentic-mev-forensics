@@ -1,5 +1,5 @@
 {
-    "name": "@mev/rpc",
+    "name": "@mev/uniswap",
     "version": "0.0.0",
     "private": true,
     "main": "./index.ts",
@@ -7,8 +7,9 @@
     "types": "./index.ts",
     "dependencies": {
         "@mev/shared": "workspace:*",
-        "dotenv": "catalog:",
-        "viem": "catalog:"
+        "@uniswap/sdk-core": "^7.13.0",
+        "@uniswap/v3-sdk": "^3.30.0",
+        "dotenv": "catalog:"
     },
     "devDependencies": {
         "@types/node": "catalog:"
