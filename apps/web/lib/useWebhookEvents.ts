@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { Trade } from "./types";
+import type { TradeListItem } from "@mev/shared";
 
 interface Options {
-  trades: Trade[];
+  trades: TradeListItem[];
   onNewWebhookTrade: (txHash: string) => void;
 }
 
@@ -19,14 +19,14 @@ export function useWebhookEvents({ trades, onNewWebhookTrade }: Options) {
   useEffect(() => {
     if (seenRef.current === null) {
       // Baseline snapshot on first render — don't toast for existing trades.
-      seenRef.current = new Set(trades.map((t) => t.fullHash));
+      seenRef.current = new Set(trades.map((t) => t.tx_hash));
       return;
     }
 
     for (const trade of trades) {
-      if (trade.source === "webhook" && !seenRef.current.has(trade.fullHash)) {
-        seenRef.current.add(trade.fullHash);
-        callbackRef.current(trade.fullHash);
+      if (trade.is_auto && !seenRef.current.has(trade.tx_hash)) {
+        seenRef.current.add(trade.tx_hash);
+        callbackRef.current(trade.tx_hash);
       }
     }
   }, [trades]);
