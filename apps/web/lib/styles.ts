@@ -1,6 +1,7 @@
 // Verdict / role / tag style maps. Class-name based so they swap with theme.
 
-import type { Role, TagColor, Verdict } from "./types";
+import type { TradeVerdict } from "@mev/shared";
+import type { Role, TagColor } from "./types";
 
 export interface VerdictStyle {
   /** Tailwind background class */
@@ -13,7 +14,7 @@ export interface VerdictStyle {
   label: string;
 }
 
-export const VERDICT_STYLES: Record<Verdict, VerdictStyle> = {
+export const VERDICT_STYLES: Record<TradeVerdict, VerdictStyle> = {
   frontrun: {
     bg: "bg-red-bg",
     text: "text-red",
@@ -32,17 +33,11 @@ export const VERDICT_STYLES: Record<Verdict, VerdictStyle> = {
     border: "border-slate-bd",
     label: "normal",
   },
-  "not checked": {
+  not_checked: {
     bg: "bg-canvas",
     text: "text-text-t",
     border: "border-border-d",
     label: "not checked",
-  },
-  auto: {
-    bg: "bg-green-bg",
-    text: "text-green",
-    border: "border-green-bd",
-    label: "auto",
   },
 };
 

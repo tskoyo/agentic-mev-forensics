@@ -1,13 +1,14 @@
+import type { TradeVerdict } from "@mev/shared";
 import { cn } from "@/lib/cn";
 import { VERDICT_STYLES } from "@/lib/styles";
-import type { Verdict } from "@/lib/types";
 
 interface Props {
-  verdict: Verdict;
+  verdict: TradeVerdict;
+  isAuto?: boolean;
 }
 
-export function VerdictBadge({ verdict }: Props) {
-  const s = VERDICT_STYLES[verdict] ?? VERDICT_STYLES["not checked"];
+export function VerdictBadge({ verdict, isAuto }: Props) {
+  const s = VERDICT_STYLES[verdict] ?? VERDICT_STYLES.not_checked;
   return (
     <span
       className={cn(
@@ -16,7 +17,7 @@ export function VerdictBadge({ verdict }: Props) {
         s.bg, s.text, s.border,
       )}
     >
-      {verdict === "auto" && (
+      {isAuto && (
         <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse-slow" />
       )}
       {s.label}

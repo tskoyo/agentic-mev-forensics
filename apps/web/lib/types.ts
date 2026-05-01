@@ -1,6 +1,6 @@
 // MEV Forensics — domain types shared across UI components.
 
-export type Verdict = "frontrun" | "unknown" | "normal" | "not checked" | "auto";
+import type { TradeVerdict } from "@mev/shared";
 
 export type Role =
   | "arbitrageur"
@@ -18,18 +18,6 @@ export type ToolStatus = "done" | "running" | "pending" | "error";
 export type TagColor = "indigo" | "green" | "slate" | "teal" | "red";
 
 export type Source = "manual" | "webhook";
-
-export interface Trade {
-  id: string;
-  hash: string;
-  fullHash: string;
-  summary: string;
-  verdict: Verdict;
-  pnlDelta: string;
-  block: string;
-  ago: string;
-  source: Source;
-}
 
 export interface ToolCall {
   id: string;
@@ -84,7 +72,7 @@ export interface Investigation {
   source: Source;
   question: string | null;
   toolCalls: ToolCall[];
-  verdict: Verdict;
+  verdict: TradeVerdict;
   narrativeHeadline: string | null;
   narrativeBody: string | null;
   pnl: Pnl;
