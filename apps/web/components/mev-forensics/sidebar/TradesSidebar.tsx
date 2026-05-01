@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Trade } from "@/lib/types";
+import type { TradeListItem } from "@mev/shared";
 import { SectionLabel } from "../primitives/SectionLabel";
 import { TradeRow } from "./TradeRow";
 
@@ -14,12 +14,8 @@ const FILTER_OPTIONS: { value: FilterOption; label: string }[] = [
   { value: "normal",   label: "Normal"   },
 ];
 
-function parseBlock(block: string): number {
-  return parseInt(block.replace(/,/g, ""), 10) || 0;
-}
-
 interface Props {
-  trades: Trade[];
+  trades: TradeListItem[];
   selectedId: string;
   onSelect: (id: string) => void;
 }
@@ -30,7 +26,7 @@ export function TradesSidebar({ trades, selectedId, onSelect }: Props) {
   const visible = useMemo(() => {
     const filtered =
       filter === "all" ? trades : trades.filter((t) => t.verdict === filter);
-    return [...filtered].sort((a, b) => parseBlock(b.block) - parseBlock(a.block));
+    return [...filtered].sort((a, b) => (b.block ?? 0) - (a.block ?? 0));
   }, [trades, filter]);
 
   return (
@@ -72,10 +68,10 @@ export function TradesSidebar({ trades, selectedId, onSelect }: Props) {
         ) : (
           visible.map((t) => (
             <TradeRow
-              key={t.id}
+              key={t.tx_hash}
               trade={t}
-              selected={t.id === selectedId}
-              onClick={() => onSelect(t.id)}
+              selected={t.tx_hash === selectedId}
+              onClick={() => onSelect(t.tx_hash)}
             />
           ))
         )}
