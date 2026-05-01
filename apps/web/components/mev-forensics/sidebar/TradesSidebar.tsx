@@ -14,7 +14,9 @@ const FILTER_OPTIONS: { value: FilterOption; label: string }[] = [
   { value: "normal",   label: "Normal"   },
 ];
 
-function parseBlock(block: string): number {
+function parseBlock(block: string | number | null | undefined): number {
+  if (block == null) return 0;
+  if (typeof block === "number") return block;
   return parseInt(block.replace(/,/g, ""), 10) || 0;
 }
 
