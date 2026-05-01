@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { VERDICT_STYLES } from "@/lib/styles";
-import type { Investigation, Trade } from "@/lib/types";
+import type { TradeListItem } from "@mev/shared";
+import type { Investigation } from "@/lib/types";
 import { Mono } from "../primitives/Mono";
 import { SectionLabel } from "../primitives/SectionLabel";
 import { StackIcon } from "../primitives/icons";
@@ -14,7 +15,7 @@ import { TimelineTab } from "./TimelineTab";
 type Tab = "actors" | "timeline" | "citations";
 
 interface Props {
-  trade: Trade | undefined;
+  trade: TradeListItem | undefined;
   investigation: Investigation | null;
 }
 
@@ -22,7 +23,7 @@ export function EvidencePanel({ trade, investigation }: Props) {
   const [tab, setTab] = useState<Tab>("actors");
 
   // Empty state
-  if (!trade || !investigation || trade.verdict === "not checked") {
+  if (!trade || !investigation || trade.verdict === "not_checked") {
     return (
       <div className="w-[340px] shrink-0 bg-canvas border-l border-border-s flex flex-col items-center justify-center gap-2.5 p-6">
         <div className="w-10 h-10 rounded-[10px] bg-sunken flex items-center justify-center">
@@ -39,14 +40,14 @@ export function EvidencePanel({ trade, investigation }: Props) {
   }
 
   const inv = investigation;
-  const vs = VERDICT_STYLES[trade.verdict] ?? VERDICT_STYLES["not checked"];
+  const vs = VERDICT_STYLES[trade.verdict] ?? VERDICT_STYLES.not_checked;
 
   const verdictHeadline =
     trade.verdict === "frontrun"
       ? "Frontrunner found"
       : trade.verdict === "unknown"
-      ? "No cause found"
-      : "Normal variance";
+        ? "No cause found"
+        : "Normal variance";
 
   const verdictSub =
     trade.verdict === "frontrun"
