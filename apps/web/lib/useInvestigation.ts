@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { Investigation, ToolCall, Verdict } from "./types";
+import type { TradeVerdict } from "@mev/shared";
+import type { Investigation, ToolCall } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -30,21 +31,21 @@ type SSEReport = {
 type SSEError = { type: "error"; message: string };
 type SSEEvent = SSEToolCall | SSETextDelta | SSEReport | SSEError;
 
-function deriveVerdict(outcome: string, rootCause: string | null): Verdict {
+function deriveVerdict(outcome: string, rootCause: string | null): TradeVerdict {
   if (outcome === "A2" && rootCause === "B1") return "frontrun";
   if (outcome === "A2" && rootCause === "B9") return "unknown";
   if (outcome === "A1") return "normal";
   return "unknown";
 }
 
-function verdictHeadline(verdict: Verdict): string {
+function verdictHeadline(verdict: TradeVerdict): string {
   if (verdict === "frontrun") return "Frontrunner confirmed";
   if (verdict === "unknown") return "No cause found";
   if (verdict === "normal") return "Within normal variance";
   return "Investigation complete";
 }
 
-function verdictFollowUps(verdict: Verdict): string[] {
+function verdictFollowUps(verdict: TradeVerdict): string[] {
   if (verdict === "frontrun") return ["Who ran that tx?", "Could I have won this?"];
   if (verdict === "unknown") return ["What else could explain this?", "How confident are you?"];
   return ["Show me the simulation details"];
@@ -99,7 +100,7 @@ export function useInvestigation(): UseInvestigationResult {
       source: "manual",
       question: question ?? null,
       toolCalls: [],
-      verdict: "not checked",
+      verdict: "not_checked",
       narrativeHeadline: null,
       narrativeBody: null,
       pnl: {

@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import type { Investigation, Trade } from "@/lib/types";
+import type { TradeListItem } from "@mev/shared";
+import type { Investigation } from "@/lib/types";
+import { truncateAddress } from "@/lib/useAddressLabel";
 import { Mono } from "../primitives/Mono";
 import { SectionLabel } from "../primitives/SectionLabel";
 import { ChevronDownTinyIcon, SearchIcon, SendIcon } from "../primitives/icons";
@@ -12,7 +14,7 @@ import { PnLCard } from "./PnLCard";
 import { ToolCallRow } from "./ToolCallRow";
 
 interface Props {
-  trade: Trade | undefined;
+  trade: TradeListItem | undefined;
   investigation: Investigation | null;
   isStreaming?: boolean;
   error?: string | null;
@@ -189,7 +191,7 @@ export function InvestigationCanvas({
         <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
           <span className="text-xs text-text-t">Investigation</span>
           <span className="text-border-d">·</span>
-          <Mono size={12} className="text-text-s">{trade.hash}</Mono>
+          <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
           <div className="flex-1" />
         </div>
         <ErrorPanel message={error} onRetry={onRetry} />
@@ -198,7 +200,7 @@ export function InvestigationCanvas({
   }
 
   const inv = investigation;
-  const isUnchecked = trade.verdict === "not checked" && !isStreaming;
+  const isUnchecked = trade.verdict === "not_checked" && !isStreaming;
   const isLoadingSkeleton = isStreaming && inv.toolCalls.length === 0 && !inv.narrativeBody;
 
   if (isLoadingSkeleton) {
@@ -207,7 +209,7 @@ export function InvestigationCanvas({
         <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
           <span className="text-xs text-text-t">Investigation</span>
           <span className="text-border-d">·</span>
-          <Mono size={12} className="text-text-s">{trade.hash}</Mono>
+          <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
           <span className="text-border-d">·</span>
           <span className="text-[11px] text-green animate-pulse-slow font-medium">running</span>
           <div className="flex-1" />
@@ -224,9 +226,9 @@ export function InvestigationCanvas({
       <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
         <span className="text-xs text-text-t">Investigation</span>
         <span className="text-border-d">·</span>
-        <Mono size={12} className="text-text-s">{trade.hash}</Mono>
+        <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
         <span className="text-border-d">·</span>
-        <Mono size={12} className="text-text-t">block {trade.block}</Mono>
+        <Mono size={12} className="text-text-t">block {trade.block?.toLocaleString() ?? "—"}</Mono>
         {isStreaming && (
           <>
             <span className="text-border-d">·</span>
@@ -278,11 +280,11 @@ export function InvestigationCanvas({
               This trade has not been investigated yet
             </div>
             <div className="text-xs text-text-t mb-3.5">
-              Gap: {trade.pnlDelta} ({inv.pnl.gapPct}) — below threshold
+              Gap: {trade.pnl_delta_usd != null ? `${trade.pnl_delta_usd >= 0 ? "+" : "-"}$${Math.abs(trade.pnl_delta_usd).toFixed(2)}` : "—"} ({inv.pnl.gapPct}) — below threshold
             </div>
             <button
               type="button"
-              onClick={() => onSend?.(`Investigate ${trade.fullHash}`)}
+              onClick={() => onSend?.(`Investigate ${trade.tx_hash}`)}
               className="px-4.5 py-2 bg-green text-white border-0 rounded text-[13px] font-medium cursor-pointer hover:opacity-90 transition-opacity"
               style={{ paddingLeft: 18, paddingRight: 18 }}
             >

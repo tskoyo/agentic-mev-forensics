@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, SearchX } from "lucide-react";
-import type { Investigation, Trade, ToolCall, Verdict } from "@/lib/types";
+import type { TradeListItem, TradeVerdict } from "@mev/shared";
+import type { Investigation, ToolCall } from "@/lib/types";
 import { Header } from "@/components/mev-forensics/Header";
 import { TradesSidebar } from "@/components/mev-forensics/sidebar/TradesSidebar";
 import { InvestigationCanvas } from "@/components/mev-forensics/canvas/InvestigationCanvas";
@@ -37,21 +38,21 @@ interface ApiTradeReport {
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 
-function deriveVerdict(outcome: string, rootCause: string | null): Verdict {
+function deriveVerdict(outcome: string, rootCause: string | null): TradeVerdict {
   if (outcome === "A2" && rootCause === "B1") return "frontrun";
   if (outcome === "A2" && rootCause === "B9") return "unknown";
   if (outcome === "A1") return "normal";
   return "unknown";
 }
 
-function verdictHeadline(v: Verdict): string {
+function verdictHeadline(v: TradeVerdict): string {
   if (v === "frontrun") return "Frontrunner confirmed";
   if (v === "unknown") return "No cause found";
   if (v === "normal") return "Within normal variance";
   return "Investigation complete";
 }
 
-function verdictFollowUps(v: Verdict): string[] {
+function verdictFollowUps(v: TradeVerdict): string[] {
   if (v === "frontrun") return ["Who ran that tx?", "Could I have won this?"];
   if (v === "unknown") return ["What else could explain this?", "How confident are you?"];
   return ["Show me the simulation details"];
@@ -66,14 +67,6 @@ function fmtPct(delta: number, expected: number): string {
   return `${Math.abs((delta / expected) * 100).toFixed(1)}%`;
 }
 
-function fmtAgo(unixSec: number): string {
-  const mins = Math.floor((Date.now() / 1000 - unixSec) / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
-}
-
 function fmtInput(input: Record<string, unknown>): string {
   return Object.entries(input)
     .map(([k, v]) => `${k}: ${v}`)
@@ -85,23 +78,18 @@ function truncateHash(hash: string): string {
   return `${hash.slice(0, 6)}…${hash.slice(-4)}`;
 }
 
-function mapToTrade(r: ApiTradeReport): Trade {
+function mapToTradeListItem(r: ApiTradeReport): TradeListItem {
   const verdict = deriveVerdict(r.outcome, r.root_cause);
   const getTradeOut = r.tool_calls.find((tc) => tc.name === "get_trade")?.output;
   const block = (getTradeOut as { block?: number } | undefined)?.block;
 
   return {
-    id: r.tx_hash,
-    hash: truncateHash(r.tx_hash),
-    fullHash: r.tx_hash,
-    summary: verdict === "frontrun" ? "Arb frontrun" : verdict === "unknown" ? "Arb underperformed" : "Arb normal",
+    tx_hash: r.tx_hash,
+    description: verdict === "frontrun" ? "Arb frontrun" : verdict === "unknown" ? "Arb underperformed" : "Arb normal",
     verdict,
-    pnlDelta: r.pnl_delta != null
-      ? `${r.pnl_delta > 0 ? "+" : ""}${fmtUsd(r.pnl_delta)}`
-      : "—",
-    block: block ? block.toLocaleString() : "—",
-    ago: fmtAgo(r.created_at),
-    source: "manual",
+    pnl_delta_usd: r.pnl_delta ?? null,
+    block: block ?? null,
+    is_auto: false,
   };
 }
 
@@ -149,7 +137,7 @@ function mapToInvestigation(r: ApiTradeReport): Investigation {
 
 type PageState =
   | { status: "loading" }
-  | { status: "found"; trade: Trade; investigation: Investigation; completedAt: string }
+  | { status: "found"; trade: TradeListItem; investigation: Investigation; completedAt: string }
   | { status: "not-found"; txHash: string }
   | { status: "error"; message: string };
 
@@ -241,7 +229,7 @@ export default function InvestigationPage() {
         if (cancelled) return;
         setState({
           status: "found",
-          trade: mapToTrade(report),
+          trade: mapToTradeListItem(report),
           investigation: mapToInvestigation(report),
           completedAt: new Date(report.created_at * 1000).toISOString(),
         });
@@ -295,7 +283,7 @@ export default function InvestigationPage() {
     <PageShell dark={dark} onToggle={toggleDark}>
       <TradesSidebar
         trades={[trade]}
-        selectedId={trade.id}
+        selectedId={trade.tx_hash}
         onSelect={() => {}}
       />
       <div className="flex-1 flex flex-col overflow-hidden">

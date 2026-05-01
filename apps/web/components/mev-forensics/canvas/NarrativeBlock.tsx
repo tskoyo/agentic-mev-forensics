@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import type { TradeVerdict } from "@mev/shared";
 import { VERDICT_STYLES } from "@/lib/styles";
-import type { Actor, RuledOut, ToolCall, Verdict } from "@/lib/types";
+import type { Actor, RuledOut, ToolCall } from "@/lib/types";
 import { truncateAddress } from "@/lib/useAddressLabel";
 import { AddressChip } from "../primitives/AddressChip";
 import { ChevronIcon, MinusInCircleIcon } from "../primitives/icons";
@@ -11,7 +12,7 @@ import { ChevronIcon, MinusInCircleIcon } from "../primitives/icons";
 const ADDRESS_RE = /0x[0-9a-fA-F]{4}[…\.]{1,3}[0-9a-fA-F]{4}|0x[0-9a-fA-F]{40}/g;
 
 interface Props {
-  verdict: Verdict;
+  verdict: TradeVerdict;
   headline: string | null;
   body: string | null;
   ruledOut?: RuledOut[];
@@ -150,7 +151,7 @@ export function NarrativeBlock({
   actors = [],
   onCitationClick,
 }: Props) {
-  const vs = VERDICT_STYLES[verdict] ?? VERDICT_STYLES["not checked"];
+  const vs = VERDICT_STYLES[verdict] ?? VERDICT_STYLES.not_checked;
   const [expanded, setExpanded] = useState(false);
 
   return (

@@ -42,6 +42,7 @@ export function App() {
 
   useWebhookEvents({ trades, onNewWebhookTrade: addToast });
 
+
   const selectedTrade = trades.find((t) => t.tx_hash === selectedId);
   const activeInvestigation = liveInvestigation ?? null;
 
