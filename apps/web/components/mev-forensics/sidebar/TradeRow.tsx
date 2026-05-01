@@ -1,24 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import type { TradeListItem } from "@mev/shared";
 import { cn } from "@/lib/cn";
 import { VERDICT_STYLES } from "@/lib/styles";
-import type { Trade } from "@/lib/types";
+import { truncateAddress } from "@/lib/useAddressLabel";
 import { AddressChip } from "../primitives/AddressChip";
 import { Mono } from "../primitives/Mono";
 import { VerdictBadge } from "../primitives/VerdictBadge";
 
 interface Props {
-  trade: Trade;
+  trade: TradeListItem;
   selected: boolean;
   onClick: () => void;
 }
 
 export function TradeRow({ trade, selected, onClick }: Props) {
-  const vs = VERDICT_STYLES[trade.verdict] ?? VERDICT_STYLES["not checked"];
+  const vs = VERDICT_STYLES[trade.verdict] ?? VERDICT_STYLES.not_checked;
   const [hovered, setHovered] = useState(false);
 
-  const isLoss = trade.pnlDelta.startsWith("-");
+  const pnlDelta = trade.pnl_delta_usd != null
+    ? `${trade.pnl_delta_usd >= 0 ? "+" : "-"}$${Math.abs(trade.pnl_delta_usd).toFixed(2)}`
+    : "—";
+  const isLoss = trade.pnl_delta_usd !== null && trade.pnl_delta_usd < 0;
+  const blockStr = trade.block?.toLocaleString() ?? "—";
+  const summary = trade.description ?? trade.label ?? "—";
 
   return (
     <div
@@ -38,33 +44,25 @@ export function TradeRow({ trade, selected, onClick }: Props) {
     >
       <div className="flex items-center justify-between mb-0.5">
         <AddressChip
-          display={trade.hash}
-          fullAddress={trade.fullHash}
+          display={truncateAddress(trade.tx_hash)}
+          fullAddress={trade.tx_hash}
           type="tx"
           size={12}
           className="font-medium"
         />
-        <div className="flex items-center gap-1">
-          {trade.source === "webhook" && (
-            <span className="inline-flex items-center gap-1 rounded px-2 py-[2px] text-[11px] font-medium whitespace-nowrap border bg-green-bg text-green border-green-bd">
-              <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse-slow" />
-              auto
-            </span>
-          )}
-          <VerdictBadge verdict={trade.verdict} />
-        </div>
+        <VerdictBadge verdict={trade.verdict} isAuto={trade.is_auto} />
       </div>
       <div className="flex items-center justify-between mt-1">
-        <span className="text-xs text-text-s">{trade.summary}</span>
+        <span className="text-xs text-text-s">{summary}</span>
         <Mono
           size={12}
           className={cn("font-medium", isLoss ? "text-red" : "text-green")}
         >
-          {trade.pnlDelta}
+          {pnlDelta}
         </Mono>
       </div>
       <Mono size={11} className="text-text-t">
-        block {trade.block}
+        block {blockStr}
       </Mono>
     </div>
   );
