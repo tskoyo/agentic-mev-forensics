@@ -154,7 +154,7 @@ export function InvestigationCanvas({
     }
   }
 
-  if (!trade || !investigation) {
+  if (!investigation) {
     return (
       <div className="flex-1 flex flex-col bg-surface overflow-hidden min-w-0">
         <div className="flex-1 flex items-center justify-center flex-col gap-3">
@@ -191,7 +191,7 @@ export function InvestigationCanvas({
         <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
           <span className="text-xs text-text-t">Investigation</span>
           <span className="text-border-d">·</span>
-          <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
+          <Mono size={12} className="text-text-s">{truncateAddress(trade?.tx_hash ?? "")}</Mono>
           <div className="flex-1" />
         </div>
         <ErrorPanel message={error} onRetry={onRetry} />
@@ -200,7 +200,7 @@ export function InvestigationCanvas({
   }
 
   const inv = investigation;
-  const isUnchecked = trade.verdict === "not_checked" && !isStreaming;
+  const isUnchecked = trade?.verdict === "not_checked" && !isStreaming;
   const isLoadingSkeleton = isStreaming && inv.toolCalls.length === 0 && !inv.narrativeBody;
 
   if (isLoadingSkeleton) {
@@ -209,7 +209,7 @@ export function InvestigationCanvas({
         <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
           <span className="text-xs text-text-t">Investigation</span>
           <span className="text-border-d">·</span>
-          <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
+          <Mono size={12} className="text-text-s">{truncateAddress(trade?.tx_hash ?? "")}</Mono>
           <span className="text-border-d">·</span>
           <span className="text-[11px] text-green animate-pulse-slow font-medium">running</span>
           <div className="flex-1" />
@@ -226,9 +226,9 @@ export function InvestigationCanvas({
       <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
         <span className="text-xs text-text-t">Investigation</span>
         <span className="text-border-d">·</span>
-        <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
+        <Mono size={12} className="text-text-s">{truncateAddress(trade?.tx_hash ?? "")}</Mono>
         <span className="text-border-d">·</span>
-        <Mono size={12} className="text-text-t">block {trade.block?.toLocaleString() ?? "—"}</Mono>
+        <Mono size={12} className="text-text-t">block {trade?.block?.toLocaleString() ?? "—"}</Mono>
         {isStreaming && (
           <>
             <span className="text-border-d">·</span>
