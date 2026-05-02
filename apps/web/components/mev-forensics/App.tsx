@@ -36,6 +36,13 @@ export function App() {
     }
   }, [trades]);
 
+  useEffect(() => {
+    if (sessionStorage.getItem("focusChat") === "1") {
+      sessionStorage.removeItem("focusChat");
+      setFocusTrigger(1);
+    }
+  }, []);
+
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
   const [toasts, setToasts] = useState<ToastItem[]>([]);

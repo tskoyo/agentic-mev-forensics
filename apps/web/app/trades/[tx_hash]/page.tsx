@@ -286,7 +286,10 @@ export default function TradePage() {
         trades={[trade]}
         selectedId={trade.tx_hash}
         onSelect={(id) => router.push(`/trades/${id}`)}
-        onNew={() => router.push("/")}
+        onNew={() => {
+          sessionStorage.setItem("focusChat", "1");
+          router.push("/");
+        }}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <ReplayBanner completedAt={completedAt} />
