@@ -59,11 +59,17 @@ export function App() {
     }
   }
 
+  function handleNew() {
+    setSelectedId("");
+    reset();
+  }
+
   function handleSend(text: string) {
-    if (!selectedTrade) return;
-    const isTxHash = /^0x[0-9a-fA-F]{6,}/.test(text.trim());
-    const txHash = isTxHash ? text.trim() : selectedTrade.tx_hash;
-    const question = isTxHash ? undefined : text.trim();
+    const trimmed = text.trim();
+    const isTxHash = /^0x[0-9a-fA-F]{6,}/.test(trimmed);
+    if (!selectedTrade && !isTxHash) return;
+    const txHash = isTxHash ? trimmed : selectedTrade!.tx_hash;
+    const question = isTxHash ? undefined : trimmed;
     start(txHash, question);
   }
 
@@ -76,6 +82,7 @@ export function App() {
           trades={trades}
           selectedId={selectedId}
           onSelect={handleSelectTrade}
+          onNew={handleNew}
         />
         <InvestigationCanvas
           trade={selectedTrade}
