@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useInvestigation } from "@/lib/useInvestigation";
 import { useTrades } from "@/lib/useTrades";
 import { useWebhookEvents } from "@/lib/useWebhookEvents";
@@ -13,6 +13,7 @@ import type { ToastItem } from "./WebhookToastStack";
 export function App() {
   const { trades } = useTrades();
   const [selectedId, setSelectedId] = useState<string>("");
+  const autoSelectedRef = useRef(false);
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
     return document.documentElement.dataset.theme === "dark";
@@ -24,9 +25,14 @@ export function App() {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
+  // Auto-select the first trade on initial load only — never overrides a
+  // deliberate deselection (e.g. the user clicked "+ New").
   useEffect(() => {
-    if (!selectedId && trades.length > 0) setSelectedId(trades[0].tx_hash);
-  }, [trades, selectedId]);
+    if (!autoSelectedRef.current && trades.length > 0) {
+      autoSelectedRef.current = true;
+      setSelectedId(trades[0].tx_hash);
+    }
+  }, [trades]);
 
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
@@ -70,6 +76,7 @@ export function App() {
     if (!selectedTrade && !isTxHash) return;
     const txHash = isTxHash ? trimmed : selectedTrade!.tx_hash;
     const question = isTxHash ? undefined : trimmed;
+    if (!selectedTrade) setSelectedId(txHash);
     start(txHash, question);
   }
 
