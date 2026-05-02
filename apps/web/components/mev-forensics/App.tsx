@@ -37,6 +37,7 @@ export function App() {
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [focusTrigger, setFocusTrigger] = useState(0);
 
   const addToast = useCallback((txHash: string) => {
     setToasts((prev) => [...prev, { id: `${Date.now()}-${txHash}`, txHash }]);
@@ -67,6 +68,7 @@ export function App() {
   function handleNew() {
     setSelectedId("");
     reset();
+    setFocusTrigger((n) => n + 1);
   }
 
   function handleSend(text: string) {
@@ -97,6 +99,7 @@ export function App() {
           error={error}
           onSend={handleSend}
           onRetry={() => selectedTrade && start(selectedTrade.tx_hash)}
+          focusTrigger={focusTrigger}
         />
       </div>
 

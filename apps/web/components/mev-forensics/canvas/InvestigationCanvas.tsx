@@ -20,6 +20,7 @@ interface Props {
   error?: string | null;
   onRetry?: () => void;
   onSend?: (text: string) => void;
+  focusTrigger?: number;
 }
 
 function SkeletonBar({ w }: { w?: string }) {
@@ -109,6 +110,7 @@ export function InvestigationCanvas({
   error = null,
   onRetry,
   onSend,
+  focusTrigger = 0,
 }: Props) {
   const [input, setInput] = useState("");
   const [toolsOpen, setToolsOpen] = useState(true);
@@ -116,6 +118,7 @@ export function InvestigationCanvas({
   const toolsEndRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const emptyInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (toolsEndRef.current && toolsOpen) {
@@ -128,6 +131,10 @@ export function InvestigationCanvas({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [isStreaming, investigation?.narrativeBody]);
+
+  useEffect(() => {
+    if (focusTrigger > 0) emptyInputRef.current?.focus();
+  }, [focusTrigger]);
 
   function handleCitationClick(toolCallId: string) {
     const el = document.querySelector(`[data-tc-id="${toolCallId}"]`);
@@ -166,6 +173,7 @@ export function InvestigationCanvas({
         </div>
         <div className="border-t border-border-s px-4 py-3 flex gap-2.5 items-center bg-surface">
           <input
+            ref={emptyInputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
