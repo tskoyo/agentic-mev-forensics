@@ -1,4 +1,5 @@
-import "dotenv/config";
+import { config } from "dotenv";
+config({ path: new URL("../../.env", import.meta.url).pathname });
 import type { Address, Hash } from "viem";
 import { ClaudeClient } from "@mev/claude";
 import type { ToolDefinition } from "@mev/claude";
@@ -10,6 +11,7 @@ import type {
     DecodedLog,
     UniswapV2State,
 } from "@mev/shared";
+import { extractReport } from "@mev/shared/report.js";
 
 // ── System prompt ─────────────────────────────────────────────────────────────
 
@@ -197,33 +199,6 @@ function buildTools(rpc: RpcClient): Map<string, ToolDefinition> {
             },
         ],
     ]);
-}
-
-// ── Report extraction ─────────────────────────────────────────────────────────
-
-function extractReport(
-    txHash: string,
-    messages: { role: string; content: unknown }[]
-): TradeReport | null {
-    const last = [...messages].reverse().find((m) => m.role === "assistant");
-    if (!last) return null;
-
-    const content = Array.isArray(last.content)
-        ? (last.content as { type: string; text?: string }[]).find(
-            (b) => b.type === "text"
-        )?.text
-        : (last.content as string);
-    if (!content) return null;
-
-    const match = content.match(/```json\s*([\s\S]*?)\s*```/);
-    if (!match) return null;
-
-    try {
-        const parsed = JSON.parse(match[1]) as TradeReport;
-        return { ...parsed, tx_hash: txHash, created_at: Date.now() };
-    } catch {
-        return null;
-    }
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
