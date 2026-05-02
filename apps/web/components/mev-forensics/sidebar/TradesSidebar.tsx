@@ -18,9 +18,10 @@ interface Props {
   trades: TradeListItem[];
   selectedId: string;
   onSelect: (id: string) => void;
+  onNew?: () => void;
 }
 
-export function TradesSidebar({ trades, selectedId, onSelect }: Props) {
+export function TradesSidebar({ trades, selectedId, onSelect, onNew }: Props) {
   const [filter, setFilter] = useState<FilterOption>("all");
 
   const visible = useMemo(() => {
@@ -48,6 +49,7 @@ export function TradesSidebar({ trades, selectedId, onSelect }: Props) {
           </select>
           <button
             type="button"
+            onClick={onNew}
             className="px-2.5 py-1 rounded bg-green text-white text-[11px] font-medium border-0 cursor-pointer hover:opacity-90 transition-opacity"
           >
             + New
@@ -77,22 +79,6 @@ export function TradesSidebar({ trades, selectedId, onSelect }: Props) {
         )}
       </div>
 
-      {/* Suggested follow-ups */}
-      <div className="border-t border-border-s px-4 py-3">
-        <SectionLabel>Suggested follow-ups</SectionLabel>
-        <div className="flex flex-col gap-1">
-          {["Who ran that tx?", "Could I have won this?"].map((q) => (
-            <button
-              key={q}
-              type="button"
-              className="bg-surface border border-border-d rounded-md px-2.5 py-1.5 text-xs text-text-p text-left flex justify-between items-center shadow-sm cursor-pointer hover:bg-sunken transition-colors"
-            >
-              {q}
-              <span className="text-text-t text-sm">›</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
