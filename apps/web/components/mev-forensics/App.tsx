@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useInvestigation } from "@/lib/useInvestigation";
 import { useTrades } from "@/lib/useTrades";
 import { useWebhookEvents } from "@/lib/useWebhookEvents";
@@ -11,6 +12,7 @@ import { WebhookToastStack } from "./WebhookToastStack";
 import type { ToastItem } from "./WebhookToastStack";
 
 export function App() {
+  const router = useRouter();
   const { trades } = useTrades();
   const [selectedId, setSelectedId] = useState<string>("");
   const autoSelectedRef = useRef(false);
@@ -34,6 +36,13 @@ export function App() {
     }
   }, [trades]);
 
+  useEffect(() => {
+    if (sessionStorage.getItem("focusChat") === "1") {
+      sessionStorage.removeItem("focusChat");
+      setFocusTrigger(1);
+    }
+  }, []);
+
   const { investigation: liveInvestigation, isStreaming, error, start, reset } = useInvestigation();
 
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -55,6 +64,7 @@ export function App() {
   function handleSelectTrade(id: string) {
     setSelectedId(id);
     reset();
+    router.push(`/trades/${id}`);
   }
 
   function handleJumpToTrade(txHash: string) {

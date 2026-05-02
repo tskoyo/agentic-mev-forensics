@@ -53,6 +53,7 @@ export function AddressChip({
       className={`relative inline-flex ${className ?? ""}`}
       onMouseEnter={open}
       onMouseLeave={close}
+      onClick={(e) => e.stopPropagation()}
     >
       {hasLabel ? (
         <span className="text-[13px] font-medium text-text-p cursor-default">

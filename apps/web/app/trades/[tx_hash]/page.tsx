@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useTrades } from "@/lib/useTrades";
+import { useInvestigation } from "@/lib/useInvestigation";
 import Link from "next/link";
 import { AlertCircle, SearchX } from "lucide-react";
 import type { TradeListItem, TradeVerdict } from "@mev/shared";
@@ -196,8 +198,11 @@ function ErrorLayout({ message }: { message: string }) {
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
-export default function InvestigationPage() {
+export default function TradePage() {
+  const router = useRouter();
   const { tx_hash } = useParams<{ tx_hash: string }>();
+  const { trades } = useTrades();
+  const { investigation: liveInvestigation, isStreaming, error, start } = useInvestigation();
   const [state, setState] = useState<PageState>({ status: "loading" });
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -216,7 +221,7 @@ export default function InvestigationPage() {
 
     async function load() {
       try {
-        const res = await fetch(`${API_BASE}/reports/${encodeURIComponent(tx_hash)}`);
+        const res = await fetch(`${API_BASE}/trades/${encodeURIComponent(tx_hash)}`);
         if (cancelled) return;
         if (res.status === 404) {
           setState({ status: "not-found", txHash: tx_hash });
@@ -282,15 +287,26 @@ export default function InvestigationPage() {
   return (
     <PageShell dark={dark} onToggle={toggleDark}>
       <TradesSidebar
-        trades={[trade]}
+        trades={trades.length > 0 ? trades : [trade]}
         selectedId={trade.tx_hash}
-        onSelect={() => {}}
+        onSelect={(id) => router.push(`/trades/${id}`)}
+        onNew={() => {
+          sessionStorage.setItem("focusChat", "1");
+          router.push("/");
+        }}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <ReplayBanner completedAt={completedAt} />
         <InvestigationCanvas
           trade={trade}
-          investigation={investigation}
+          investigation={liveInvestigation ?? investigation}
+          isStreaming={isStreaming}
+          error={error}
+          onSend={(text) => {
+            const trimmed = text.trim();
+            if (trimmed) start(trade.tx_hash, trimmed);
+          }}
+          onRetry={() => start(trade.tx_hash)}
         />
       </div>
     </PageShell>
