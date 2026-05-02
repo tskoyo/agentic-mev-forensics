@@ -20,6 +20,7 @@ interface Props {
   error?: string | null;
   onRetry?: () => void;
   onSend?: (text: string) => void;
+  focusTrigger?: number;
 }
 
 function SkeletonBar({ w }: { w?: string }) {
@@ -109,6 +110,7 @@ export function InvestigationCanvas({
   error = null,
   onRetry,
   onSend,
+  focusTrigger = 0,
 }: Props) {
   const [input, setInput] = useState("");
   const [toolsOpen, setToolsOpen] = useState(true);
@@ -116,6 +118,7 @@ export function InvestigationCanvas({
   const toolsEndRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const emptyInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (toolsEndRef.current && toolsOpen) {
@@ -128,6 +131,10 @@ export function InvestigationCanvas({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [isStreaming, investigation?.narrativeBody]);
+
+  useEffect(() => {
+    if (focusTrigger > 0) emptyInputRef.current?.focus();
+  }, [focusTrigger]);
 
   function handleCitationClick(toolCallId: string) {
     const el = document.querySelector(`[data-tc-id="${toolCallId}"]`);
@@ -154,7 +161,7 @@ export function InvestigationCanvas({
     }
   }
 
-  if (!trade || !investigation) {
+  if (!investigation) {
     return (
       <div className="flex-1 flex flex-col bg-surface overflow-hidden min-w-0">
         <div className="flex-1 flex items-center justify-center flex-col gap-3">
@@ -166,6 +173,7 @@ export function InvestigationCanvas({
         </div>
         <div className="border-t border-border-s px-4 py-3 flex gap-2.5 items-center bg-surface">
           <input
+            ref={emptyInputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -191,7 +199,7 @@ export function InvestigationCanvas({
         <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
           <span className="text-xs text-text-t">Investigation</span>
           <span className="text-border-d">·</span>
-          <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
+          <Mono size={12} className="text-text-s">{truncateAddress(trade?.tx_hash ?? "")}</Mono>
           <div className="flex-1" />
         </div>
         <ErrorPanel message={error} onRetry={onRetry} />
@@ -200,7 +208,7 @@ export function InvestigationCanvas({
   }
 
   const inv = investigation;
-  const isUnchecked = trade.verdict === "not_checked" && !isStreaming;
+  const isUnchecked = trade?.verdict === "not_checked" && !isStreaming;
   const isLoadingSkeleton = isStreaming && inv.toolCalls.length === 0 && !inv.narrativeBody;
 
   if (isLoadingSkeleton) {
@@ -209,7 +217,7 @@ export function InvestigationCanvas({
         <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
           <span className="text-xs text-text-t">Investigation</span>
           <span className="text-border-d">·</span>
-          <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
+          <Mono size={12} className="text-text-s">{truncateAddress(trade?.tx_hash ?? "")}</Mono>
           <span className="text-border-d">·</span>
           <span className="text-[11px] text-green animate-pulse-slow font-medium">running</span>
           <div className="flex-1" />
@@ -226,9 +234,9 @@ export function InvestigationCanvas({
       <div className="px-5 py-2.5 border-b border-border-s flex items-center gap-2.5">
         <span className="text-xs text-text-t">Investigation</span>
         <span className="text-border-d">·</span>
-        <Mono size={12} className="text-text-s">{truncateAddress(trade.tx_hash)}</Mono>
+        <Mono size={12} className="text-text-s">{truncateAddress(trade?.tx_hash ?? "")}</Mono>
         <span className="text-border-d">·</span>
-        <Mono size={12} className="text-text-t">block {trade.block?.toLocaleString() ?? "—"}</Mono>
+        <Mono size={12} className="text-text-t">block {trade?.block?.toLocaleString() ?? "—"}</Mono>
         {isStreaming && (
           <>
             <span className="text-border-d">·</span>
