@@ -216,7 +216,7 @@ export default function InvestigationPage() {
 
     async function load() {
       try {
-        const res = await fetch(`${API_BASE}/reports/${encodeURIComponent(tx_hash)}`);
+        const res = await fetch(`${API_BASE}/trades/${encodeURIComponent(tx_hash)}`);
         if (cancelled) return;
         if (res.status === 404) {
           setState({ status: "not-found", txHash: tx_hash });
