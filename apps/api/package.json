@@ -9,6 +9,7 @@
     },
     "dependencies": {
         "@hono/node-server": "catalog:",
+        "@mev/agent": "workspace:*",
         "@mev/shared": "workspace:*",
         "dotenv": "catalog:",
         "hono": "catalog:"

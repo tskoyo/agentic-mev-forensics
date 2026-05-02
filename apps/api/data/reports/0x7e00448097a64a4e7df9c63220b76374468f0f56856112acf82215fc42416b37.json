@@ -1,0 +1,65 @@
+{
+  "tx_hash": "0x7e00448097a64a4e7df9c63220b76374468f0f56856112acf82215fc42416b37",
+  "outcome": "A2",
+  "root_cause": "B1",
+  "expected_pnl": 495948.08,
+  "realized_pnl": 493427.09,
+  "pnl_delta": -2520.99,
+  "confidence": 0.95,
+  "evidence": [
+    {
+      "id": "e1",
+      "tool_call_id": "get_trade",
+      "claim": "Target tx swapped 200 ETH (200000000000000000000 wei) for USDC on pool 0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc at block 19000004, index 1. Realized USDC output: 493,427,089,116 units ($493,427.09).",
+      "data": {
+        "pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
+        "token_in": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount_in": "200000000000000000000",
+        "realized_output_usdc_units": "493427089116",
+        "block": 19000004,
+        "index": 1
+      }
+    },
+    {
+      "id": "e2",
+      "tool_call_id": "get_pool_state",
+      "claim": "At block 19000003 (N-1), simulated output for 200 ETH in was 495,948,078,599 USDC units ($495,948.08) — the counterfactual expected PnL.",
+      "data": {
+        "expected_output": "495948078599",
+        "reserve0_usdc": "48919244487709",
+        "reserve1_weth": "19468984195369336452844"
+      }
+    },
+    {
+      "id": "e3",
+      "tool_call_id": "get_block_txs",
+      "claim": "Block 19000004 contains a tx at index 0 (0x24b879293ff2e838e2f739bc7794cec9a46581c84f6f1414a5463cff1a7f645c) that touched the same pool 0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc before the target tx at index 1.",
+      "data": {
+        "frontrun_tx": "0x24b879293ff2e838e2f739bc7794cec9a46581c84f6f1414a5463cff1a7f645c",
+        "frontrun_index": 0,
+        "target_index": 1,
+        "touched_pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc"
+      }
+    },
+    {
+      "id": "e4",
+      "tool_call_id": "get_tx_trace",
+      "claim": "Trace of 0x24b879... confirms it called swap() on 0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc via Uniswap V2 Router, sending WETH in and receiving 125,738,181,167 USDC out (0x1d16d3222f), thereby moving the pool price against the target tx.",
+      "data": {
+        "frontrun_from": "0x6a7cc54c4ab51296163ff9e0fa2ed581a69d7a39",
+        "pool_called": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
+        "usdc_out": "125738181167",
+        "weth_in_wei": "50000000000000000000"
+      }
+    }
+  ],
+  "counterfactuals": [
+    {
+      "description": "If the front-run tx had not executed first, the target tx would have received $495,948.08 in USDC instead of $493,427.09, saving $2,520.99."
+    }
+  ],
+  "narrative": "Transaction 0x7e00448097a6... swapped 200 ETH for USDC on the Uniswap V2 WETH/USDC pool at block 19,000,004 (index 1). A front-runner (0x24b879...45c, index 0) executed an identical ETH→USDC swap on the same pool in the same block just before the target, consuming pool liquidity and pushing the WETH/USDC price against the victim. The pool state at block N-1 shows a counterfactual expected output of $495,948.08, while the target tx only realized $493,427.09 — a loss of $2,520.99 (0.51%). The front-run is confirmed by both get_block_txs (same pool, lower index) and get_tx_trace (direct swap() call on 0xb4e16d... draining ~$125,738 of USDC from the pool beforehand).",
+  "created_at": 1777727035012,
+  "tool_calls": [],
+  "is_auto": false
+}
