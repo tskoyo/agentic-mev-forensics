@@ -9,7 +9,7 @@ import { AddressChip } from "../primitives/AddressChip";
 import { ChevronIcon, MinusInCircleIcon } from "../primitives/icons";
 
 // Matches truncated addresses like 0x4f72…c81e or full hex addresses 0x4f72...c81e
-const ADDRESS_RE = /0x[0-9a-fA-F]{4}[…\.]{1,3}[0-9a-fA-F]{4}|0x[0-9a-fA-F]{40}/g;
+const ADDRESS_RE = /0x[0-9a-fA-F]{4}[…\.]{1,3}[0-9a-fA-F]{4}|0x[0-9a-fA-F]{64}|0x[0-9a-fA-F]{40}/g;
 
 interface Props {
   verdict: TradeVerdict;
