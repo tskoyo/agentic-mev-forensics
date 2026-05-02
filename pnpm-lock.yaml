@@ -112,9 +112,9 @@ importers:
       '@mev/shared':
         specifier: workspace:*
         version: link:../shared
-      '@mev/tenderly':
+      '@mev/uniswap':
         specifier: workspace:*
-        version: link:../tenderly
+        version: link:../uniswap
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2

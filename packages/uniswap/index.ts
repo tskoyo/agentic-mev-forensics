@@ -1,6 +1,11 @@
-import { Pool, FeeAmount } from "@uniswap/v3-sdk";
-import { Token, CurrencyAmount } from "@uniswap/sdk-core";
 import type { UniswapV2State, UniswapV3State } from "@mev/shared";
+import type { Pool, FeeAmount } from "@uniswap/v3-sdk";
+
+import pkg from "@uniswap/sdk-core";
+import sdk from "@uniswap/v3-sdk";
+
+const { Token: TokenCtor, CurrencyAmount: CurrencyAmountCtor } = pkg;
+const { Pool: PoolCtor, FeeAmount: FeeAmountEnum } = sdk;
 
 export class UniswapV3PoolMath {
     readonly pool: Pool;
@@ -11,9 +16,9 @@ export class UniswapV3PoolMath {
         token1Decimals: number,
         chainId = 1
     ) {
-        const token0 = new Token(chainId, state.token0, token0Decimals);
-        const token1 = new Token(chainId, state.token1, token1Decimals);
-        this.pool = new Pool(
+        const token0 = new TokenCtor(chainId, state.token0, token0Decimals);
+        const token1 = new TokenCtor(chainId, state.token1, token1Decimals);
+        this.pool = new PoolCtor(
             token0,
             token1,
             state.fee as FeeAmount,
@@ -43,7 +48,7 @@ export class UniswapV3PoolMath {
             tokenInAddress.toLowerCase() ===
             this.pool.token0.address.toLowerCase();
         const tokenIn = isToken0In ? this.pool.token0 : this.pool.token1;
-        const inputAmount = CurrencyAmount.fromRawAmount(
+        const inputAmount = CurrencyAmountCtor.fromRawAmount(
             tokenIn,
             amountIn.toString()
         );

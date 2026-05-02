@@ -9,7 +9,7 @@
         "@mev/claude": "workspace:*",
         "@mev/rpc": "workspace:*",
         "@mev/shared": "workspace:*",
-        "@mev/tenderly": "workspace:*",
+        "@mev/uniswap": "workspace:*",
         "dotenv": "catalog:",
         "viem": "catalog:"
     },

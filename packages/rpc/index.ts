@@ -14,8 +14,10 @@ import {
 import { mainnet } from "viem/chains";
 import type {
     BlockTxSummary,
+    CallFrame,
     GetBlockTxsOutput,
     GetPoolStateOutput,
+    GetTxTraceOutput,
     UniswapV2State,
     UniswapV3State,
 } from "@mev/shared";
@@ -142,6 +144,14 @@ export class RpcClient {
         return summaries;
     }
 
+    async getTrace(hash: Hash): Promise<GetTxTraceOutput> {
+        const result = await this.client.request({
+            method: "debug_traceTransaction" as any,
+            params: [hash, { tracer: "callTracer" }] as any,
+        });
+        return { call_tree: mapCallFrame(result as unknown as RawCallFrame) };
+    }
+
     async getPoolState(
         poolAddress: Address,
         blockNumber: bigint | number,
@@ -230,4 +240,32 @@ export class RpcClient {
         };
         return state;
     }
+}
+
+interface RawCallFrame {
+    type: string;
+    from: string;
+    to: string;
+    input: string;
+    output?: string;
+    value?: string;
+    gas: string;
+    gasUsed: string;
+    error?: string;
+    calls?: RawCallFrame[];
+}
+
+function mapCallFrame(r: RawCallFrame): CallFrame {
+    return {
+        type: r.type,
+        from: r.from,
+        to: r.to,
+        input: r.input,
+        output: r.output,
+        value: r.value,
+        gas: parseInt(r.gas, 16),
+        gas_used: parseInt(r.gasUsed, 16),
+        error: r.error,
+        calls: r.calls?.map(mapCallFrame),
+    };
 }

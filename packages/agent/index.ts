@@ -3,11 +3,12 @@ import type { Address, Hash } from "viem";
 import { ClaudeClient } from "@mev/claude";
 import type { ToolDefinition } from "@mev/claude";
 import { RpcClient } from "@mev/rpc";
-import { TenderlyClient } from "@mev/tenderly";
+import { computeV2OutputAmount } from "@mev/uniswap";
 import type {
     SSEEvent,
     TradeReport,
     DecodedLog,
+    UniswapV2State,
 } from "@mev/shared";
 
 // ── System prompt ─────────────────────────────────────────────────────────────
@@ -21,12 +22,12 @@ MVP taxonomy:
 - Root causes: B1 (frontrun_same_block), B9 (unknown)
 
 Investigation protocol:
-1. Call get_trade to load the tx.
-2. Call simulate_at_state at block N-1 to establish expected PnL (counterfactual: what the trade would have earned if it ran first in block N).
-3. Compare expected vs realized. Use DUAL threshold — skip investigation only if BOTH: gap_pct ≤ 5% AND gap_usd < $10. Investigate if EITHER: gap_pct > 5% OR gap_usd ≥ $10. Derive gap_usd from the simulation token amounts — no external price feed.
+1. Call get_trade to load the tx. Extract the pool address from the logs, the input token address, and the input amount.
+2. Call get_pool_state at block N-1 with token_in and amount_in to get the expected output (counterfactual: what the trade would have earned if it ran first in block N). The realized output comes from the Transfer logs in get_trade.
+3. Compare expected vs realized. Use DUAL threshold — skip investigation only if BOTH: gap_pct ≤ 5% AND gap_usd < $10. Investigate if EITHER: gap_pct > 5% OR gap_usd ≥ $10.
 4. Call get_block_txs to find all txs in the same block touching the same pool at a lower index than the target tx.
 5. If a candidate is found: call get_tx_trace on it to confirm it touched the same pool. If confirmed: report A2 → B1 with evidence.
-6. If no candidate found: call get_pool_state at N-1 and N to measure organic pool movement. Report A2 → B9 with a full list of what you ruled out.
+6. If no candidate found: call get_pool_state at N to compare pool state before and after the block. Report A2 → B9 with a full list of what you ruled out.
 7. If still unresolved after 8 tool calls: report A2 → B9.
 
 Evidence rules (NON-NEGOTIABLE):
@@ -83,10 +84,7 @@ function decodeLog(log: {
     return { address: log.address, topics: [...log.topics], data: log.data };
 }
 
-function buildTools(
-    rpc: RpcClient,
-    tenderly: TenderlyClient
-): Map<string, ToolDefinition> {
+function buildTools(rpc: RpcClient): Map<string, ToolDefinition> {
     return new Map([
         [
             "get_trade",
@@ -121,29 +119,6 @@ function buildTools(
             },
         ],
         [
-            "simulate_at_state",
-            {
-                description:
-                    "Simulate the transaction at a given block number using Tenderly. Pass block N-1 to get the counterfactual PnL (what the trade would have earned with no competition in block N).",
-                input_schema: {
-                    type: "object",
-                    properties: {
-                        tx_hash: { type: "string", description: "0x-prefixed transaction hash" },
-                        block: { type: "number", description: "Block number to simulate at (use N-1 for counterfactual)" },
-                        state_override: { type: "object", description: "Optional EVM state overrides" },
-                    },
-                    required: ["tx_hash", "block"],
-                },
-                fn: async (input) => {
-                    return await tenderly.simulate(
-                        input.tx_hash as Hash,
-                        input.block as number,
-                        input.state_override as Record<string, unknown> | undefined
-                    );
-                },
-            },
-        ],
-        [
             "get_block_txs",
             {
                 description:
@@ -164,7 +139,7 @@ function buildTools(
             "get_tx_trace",
             {
                 description:
-                    "Get the full call tree for a transaction via Tenderly. Use this to confirm a competitor tx touched the same pool as the target.",
+                    "Get the full call trace of a transaction, including all internal calls. Use this to confirm whether a suspicious transaction actually interacted with the same pool as the target transaction.",
                 input_schema: {
                     type: "object",
                     properties: {
@@ -173,7 +148,7 @@ function buildTools(
                     required: ["tx_hash"],
                 },
                 fn: async (input) => {
-                    return await tenderly.getTrace(input.tx_hash as Hash);
+                    return await rpc.getTrace(input.tx_hash as Hash);
                 },
             },
         ],
@@ -181,7 +156,7 @@ function buildTools(
             "get_pool_state",
             {
                 description:
-                    "Get the state of a Uniswap V2 or V3 pool at a specific block. Returns reserves for V2, sqrtPriceX96/liquidity/tick for V3.",
+                    "Get the state of a Uniswap V2 or V3 pool at a specific block. For V2, optionally pass token_in and amount_in to also receive the expected output — use this at block N-1 to establish the counterfactual PnL without calling any simulation API.",
                 input_schema: {
                     type: "object",
                     properties: {
@@ -192,15 +167,32 @@ function buildTools(
                             enum: ["v2", "v3"],
                             description: "Pool type — v2 for Uniswap V2 pairs, v3 for Uniswap V3 pools",
                         },
+                        token_in: { type: "string", description: "Input token address (optional, V2 only — used to compute expected_output)" },
+                        amount_in: { type: "string", description: "Input amount as a decimal string (optional, V2 only — used to compute expected_output)" },
                     },
                     required: ["pool_address", "block", "kind"],
                 },
                 fn: async (input) => {
-                    return await rpc.getPoolState(
+                    const state = await rpc.getPoolState(
                         input.pool_address as Address,
                         input.block as number,
                         input.kind as "v2" | "v3"
                     );
+
+                    if (
+                        state.kind === "v2" &&
+                        input.token_in &&
+                        input.amount_in
+                    ) {
+                        const expected_output = computeV2OutputAmount(
+                            state as UniswapV2State,
+                            input.token_in as string,
+                            BigInt(input.amount_in as string)
+                        );
+                        return { ...state, expected_output: expected_output.toString() };
+                    }
+
+                    return state;
                 },
             },
         ],
@@ -218,8 +210,8 @@ function extractReport(
 
     const content = Array.isArray(last.content)
         ? (last.content as { type: string; text?: string }[]).find(
-              (b) => b.type === "text"
-          )?.text
+            (b) => b.type === "text"
+        )?.text
         : (last.content as string);
     if (!content) return null;
 
@@ -241,9 +233,8 @@ export async function investigate(
     onEvent: (event: SSEEvent) => void
 ): Promise<TradeReport | null> {
     const rpc = new RpcClient();
-    const tenderly = new TenderlyClient({ rpc });
     const claude = new ClaudeClient();
-    const tools = buildTools(rpc, tenderly);
+    const tools = buildTools(rpc);
 
     const { messages } = await claude.runToolLoop({
         messages: [
