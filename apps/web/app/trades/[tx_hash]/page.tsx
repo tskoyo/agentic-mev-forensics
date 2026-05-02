@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, SearchX } from "lucide-react";
 import type { TradeListItem, TradeVerdict } from "@mev/shared";
@@ -197,6 +197,7 @@ function ErrorLayout({ message }: { message: string }) {
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export default function TradePage() {
+  const router = useRouter();
   const { tx_hash } = useParams<{ tx_hash: string }>();
   const [state, setState] = useState<PageState>({ status: "loading" });
   const [dark, setDark] = useState(() => {
@@ -284,7 +285,8 @@ export default function TradePage() {
       <TradesSidebar
         trades={[trade]}
         selectedId={trade.tx_hash}
-        onSelect={() => {}}
+        onSelect={(id) => router.push(`/trades/${id}`)}
+        onNew={() => router.push("/")}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <ReplayBanner completedAt={completedAt} />
