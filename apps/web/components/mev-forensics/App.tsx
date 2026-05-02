@@ -57,7 +57,7 @@ export function App() {
   function handleSelectTrade(id: string) {
     setSelectedId(id);
     reset();
-    router.push(`/investigation/${id}`);
+    router.push(`/trades/${id}`);
   }
 
   function handleJumpToTrade(txHash: string) {
