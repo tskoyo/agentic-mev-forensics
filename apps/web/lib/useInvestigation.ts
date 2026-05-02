@@ -118,10 +118,8 @@ export function useInvestigation(): UseInvestigationResult {
     });
 
     try {
-      const res = await fetch(`${API_BASE}/investigate`, {
+      const res = await fetch(`${API_BASE}/trades/${txHash}/investigate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tx_hash: txHash }),
         signal: abort.signal,
       });
 

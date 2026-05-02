@@ -2,3 +2,4 @@ node_modules/
 .next/
 mev-forensics-design-system/
 .env
+apps/api/data/*
