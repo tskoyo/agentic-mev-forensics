@@ -32,19 +32,14 @@ apps/web/
 │       │   ├── SectionLabel.tsx   # Uppercase 10px label
 │       │   └── icons.tsx          # All inline SVG icons
 │       ├── sidebar/
-│       │   ├── TradesSidebar.tsx  # 280px column, list + suggested follow-ups
+│       │   ├── TradesSidebar.tsx  # 280px column, trade list + filter
 │       │   └── TradeRow.tsx
-│       ├── canvas/
-│       │   ├── InvestigationCanvas.tsx
-│       │   ├── BudgetMeter.tsx    # Tool-budget progress bar (green/amber/red)
-│       │   ├── ToolCallRow.tsx    # done / running / pending / error styles
-│       │   ├── NarrativeBlock.tsx # Headline + body + ruled-out collapse
-│       │   └── PnLCard.tsx        # Expected / Realized / Gap + thresholds
-│       └── evidence/
-│           ├── EvidencePanel.tsx  # 340px column, verdict card, PnL summary, tabs
-│           ├── ActorsTab.tsx
-│           ├── TimelineTab.tsx
-│           └── CitationsTab.tsx
+│       └── canvas/
+│           ├── InvestigationCanvas.tsx
+│           ├── BudgetMeter.tsx    # Tool-budget progress bar (green/amber/red)
+│           ├── ToolCallRow.tsx    # done / running / pending / error styles
+│           ├── NarrativeBlock.tsx # Headline + body + ruled-out collapse
+│           └── PnLCard.tsx        # Expected / Realized / Gap + thresholds
 ├── lib/
 │   ├── types.ts                   # Trade, Investigation, ToolCall, Pnl, Actor, …
 │   ├── tokens.ts                  # Token names + cssVar() helper
