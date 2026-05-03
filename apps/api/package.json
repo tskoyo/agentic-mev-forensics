@@ -12,7 +12,8 @@
         "@mev/agent": "workspace:*",
         "@mev/shared": "workspace:*",
         "dotenv": "catalog:",
-        "hono": "catalog:"
+        "hono": "catalog:",
+        "viem": "catalog:"
     },
     "devDependencies": {
         "@types/node": "catalog:"

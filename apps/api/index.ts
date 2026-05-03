@@ -14,7 +14,10 @@ import type {
     SSEEvent,
     TradeListItem,
     TradeReport,
+    WatchedWallet,
 } from "@mev/shared";
+import { readWallets, writeWallets } from "./wallets.js";
+import { startWatcher } from "./watcher.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPORTS_DIR = join(__dirname, "data", "reports");
@@ -132,8 +135,59 @@ app.post("/trades/:tx_hash/investigate", async (c) => {
     });
 });
 
+app.get("/wallets", async (c) => {
+    return c.json(await readWallets());
+});
+
+app.post("/wallets", async (c) => {
+    const body = await c.req.json<{ address: string; label?: string }>();
+    if (!body.address) return c.json({ error: "address required" }, 400);
+
+    const wallets = await readWallets();
+    const existing = wallets.find(
+        (w) => w.address.toLowerCase() === body.address.toLowerCase()
+    );
+    if (existing) return c.json(existing);
+
+    const wallet: WatchedWallet = {
+        address: body.address,
+        label: body.label,
+        registered_at: Date.now(),
+    };
+    await writeWallets([...wallets, wallet]);
+    return c.json(wallet, 201);
+});
+
+app.post("/webhook/investigate", async (c) => {
+    const body = await c.req.json<{ tx_hash: string }>();
+    if (!body.tx_hash) return c.json({ error: "tx_hash required" }, 400);
+
+    const { tx_hash } = body;
+
+    // Fire-and-forget — return 200 immediately so KeeperHub marks delivery as successful
+    (async () => {
+        try {
+            console.log('[webhook] Received investigation request for tx:', tx_hash);
+            const report = await investigate(tx_hash, () => { });
+            if (report) {
+                await mkdir(REPORTS_DIR, { recursive: true });
+                await writeFile(
+                    join(REPORTS_DIR, `${tx_hash}.json`),
+                    JSON.stringify({ ...report, is_auto: true }, null, 2)
+                );
+            }
+        } catch (err) {
+            console.error(`[webhook] Investigation failed for ${tx_hash}:`, err);
+        }
+    })();
+
+    return c.json({ ok: true, tx_hash });
+});
+
 const PORT = 3001;
 
 serve({ fetch: app.fetch, port: PORT }, () => {
     console.log(`API running on http://localhost:${PORT}`);
 });
+
+startWatcher();
