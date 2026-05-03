@@ -1,7 +1,7 @@
 // sandwich.ts
 import {
     createPublicClient, createWalletClient, createTestClient,
-    http, parseEther, parseUnits, formatUnits, getContract,
+    http, parseEther, formatUnits, getContract,
     getAddress,
 } from "viem";
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
@@ -185,7 +185,6 @@ async function main() {
     const backReceipt = await pub.getTransactionReceipt({ hash: backTx });
 
     const botEthFinal = await pub.getBalance({ address: bot.address });
-    const botUsdcFinal = await usdc.read.balanceOf([bot.address]);
     const reservesAfter = await getReserves();
 
     const victimLoss = cleanQuote - victimUsdcAfterSwap;
@@ -208,7 +207,6 @@ async function main() {
     console.log(`ETH start:          ${formatUnits(BOT_STARTING_ETH, 18)} ETH`);
     console.log(`ETH end:            ${formatUnits(botEthFinal, 18)} ETH`);
     console.log(`Net profit:         ${formatUnits(botProfitEth, 18)} ETH (gas included)`);
-    console.log(`USDC remaining:     ${formatUnits(botUsdcFinal, 6)} USDC`);
     console.log();
 
     console.log("── POOL DRIFT ───────────────────────────────────");

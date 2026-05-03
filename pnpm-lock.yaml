@@ -161,6 +161,22 @@ importers:
         specifier: 'catalog:'
         version: 25.6.0
 
+  packages/scripts:
+    dependencies:
+      '@mev/rpc':
+        specifier: workspace:*
+        version: link:../rpc
+      '@mev/shared':
+        specifier: workspace:*
+        version: link:../shared
+      viem:
+        specifier: 'catalog:'
+        version: 2.48.4(typescript@6.0.3)
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+
   packages/shared: {}
 
   packages/tenderly:

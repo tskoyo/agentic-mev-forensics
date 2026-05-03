@@ -1,0 +1,16 @@
+{
+    "name": "@mev/scripts",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./index.ts",
+    "type": "module",
+    "types": "./index.ts",
+    "dependencies": {
+        "@mev/rpc": "workspace:*",
+        "@mev/shared": "workspace:*",
+        "viem": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:"
+    }
+}
