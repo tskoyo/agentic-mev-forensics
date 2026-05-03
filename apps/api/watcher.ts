@@ -38,6 +38,9 @@ export function startWatcher(): void {
 
                     console.log(`[watcher] Detected tx from registered wallet: ${tx.hash}`);
 
+                    console.log(`[watcher] Sending investigation request to KeeperHub for tx: ${tx.hash}
+                        (workflow: ${workflowId}) url: ${KEEPERHUB_API_URL}/api/workflows/${workflowId}/webhook
+                    `);
                     fetch(`${KEEPERHUB_API_URL}/api/workflows/${workflowId}/webhook`, {
                         method: "POST",
                         headers: {

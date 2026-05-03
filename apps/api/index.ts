@@ -167,7 +167,8 @@ app.post("/webhook/investigate", async (c) => {
     // Fire-and-forget — return 200 immediately so KeeperHub marks delivery as successful
     (async () => {
         try {
-            const report = await investigate(tx_hash, () => {});
+            console.log('[webhook] Received investigation request for tx:', tx_hash);
+            const report = await investigate(tx_hash, () => { });
             if (report) {
                 await mkdir(REPORTS_DIR, { recursive: true });
                 await writeFile(
