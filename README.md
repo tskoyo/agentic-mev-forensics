@@ -6,6 +6,37 @@ Built for **ETHGlobal OpenAgents 2026**.
 
 ---
 
+## How KeeperHub is used
+
+The agent supports two investigation trigger paths: manual (user pastes a tx hash into the chat UI) and automatic (a wallet monitor detects a new transaction and triggers an investigation with no human input).
+
+KeeperHub powers the automatic path. When the wallet watcher detects a new transaction from a registered address, it calls the KeeperHub workflow webhook. KeeperHub then delivers the `tx_hash` to the Hono server's `POST /webhook/investigate` endpoint with guaranteed retry logic — if the server is briefly unavailable when the event fires, KeeperHub retries until delivery succeeds. Without this, a missed webhook means a missed investigation with no recovery.
+
+The KeeperHub workflow consists of two steps:
+1. Receive the `tx_hash` via webhook trigger
+2. `POST /webhook/investigate` on the Hono server to start the investigation pipeline
+
+A Discord notification step fires after delivery so the team knows an automatic investigation has started.
+
+---
+
+## Problems faced
+
+**KeeperHub webhook authentication**
+
+The KeeperHub MCP tools worked perfectly throughout development — `execute_workflow` triggered investigations reliably using session-based auth. The challenge was replicating this from the wallet watcher, which needs to call the KeeperHub webhook endpoint directly over HTTP using an API key.
+
+We tried every common auth header format against `POST /api/workflows/{workflowId}/webhook`:
+- `Authorization: Bearer kh_...` → `{"error":"Invalid API key format"}`
+- `x-api-key: kh_...` → `{"error":"Missing Authorization header"}`
+- `Authorization: kh_...` → rejected
+
+The REST execute endpoint (`/api/workflows/{workflowId}/execute`) returned 404 — it doesn't exist as a public API route.
+
+The MCP tooling and the direct HTTP webhook endpoint use different authentication mechanisms, and the correct format for the `kh_`-prefixed API key against the webhook endpoint was not surfaced in the available documentation. For the demo, workflow execution was triggered via the MCP `execute_workflow` tool directly.
+
+---
+
 ## The problem
 
 DEX trading bots running arbitrage, liquidation, or sandwich strategies submit thousands of transactions every day. Some win. Many underperform. When they do, finding out why means manually cross-referencing Etherscan, a block explorer, Tenderly, and a spreadsheet — **15–30 minutes per trade**, most of which never get investigated at all.
@@ -75,7 +106,7 @@ get_trade → simulate_at_state(N-1)
            │        apps/api             │
            │  Hono · GET /trades         │
            │  POST /investigate (SSE)    │
-           │  POST /webhook/tenderly     │
+           │  POST /webhook/investigate  │
            └──────────────┬──────────────┘
                           │
                           ▼
@@ -105,7 +136,22 @@ get_trade → simulate_at_state(N-1)
                     └────────────────────────┘
 ``` -->
 
-**Webhook automation (KeeperHub):** Running a Tenderly simulation fires a webhook → KeeperHub guarantees delivery to `POST /webhook/tenderly` → investigation starts automatically. No manual tx hash pasting required.
+**Webhook automation (KeeperHub):** The wallet watcher detects a new tx from a registered address → calls KeeperHub → KeeperHub delivers with retries to `POST /webhook/investigate` → investigation starts automatically. No manual tx hash pasting required.
+
+---
+
+## Setup
+
+Copy `.env.example` to `.env` and fill in the values:
+
+```
+ANTHROPIC_API_KEY=        # Claude API key
+ALCHEMY_RPC_URL=          # Ethereum RPC endpoint (Alchemy or local fork)
+KEEPERHUB_WORKFLOW_ID=    # KeeperHub workflow ID for automated investigation triggers
+KEEPERHUB_API_KEY=        # KeeperHub API key (kh_...)
+```
+
+> **Note on Tenderly:** The original plan was to use Tenderly's simulation API to compute expected PnL by replaying transactions against historical chain state. We ran into reliability issues with the simulation endpoint during development and pivoted to computing expected output directly using Uniswap's `getAmountsOut` function — a deterministic on-chain calculation that doesn't require an external simulation service.
 
 ---
 
@@ -134,8 +180,7 @@ agentic-mev-forensics/
 |---|---|
 | Language | TypeScript |
 | Monorepo | pnpm workspaces + Turborepo |
-| Ethereum RPC | viem + Tenderly Node (or Alchemy) |
-| Simulations & traces | Tenderly REST API |
+| Ethereum RPC | viem + Alchemy |
 | LLM | Claude (`claude-sonnet-4-6`) via `@anthropic-ai/sdk` |
 | Uniswap math | `@uniswap/v3-sdk` + `@uniswap/sdk-core` |
 | API server | Hono |
