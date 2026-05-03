@@ -59,6 +59,9 @@ importers:
       hono:
         specifier: 'catalog:'
         version: 4.12.16
+      viem:
+        specifier: 'catalog:'
+        version: 2.48.4(typescript@6.0.3)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
